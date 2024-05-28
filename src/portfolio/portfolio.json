@@ -1,0 +1,144 @@
+{
+    "current": {
+        "info": {
+            "name": "Vikram Rangarajan",
+            "email": "vikram.rangaraja@gmail.com",
+            "phone": "609-608-6762",
+            "linkedin": "https://www.linkedin.com/in/vikram-rangarajan/",
+            "github": "https://github.com/VikramRangarajan/",
+            "location": "Plainsboro, NJ, 08536"
+        },
+        "education": [
+            {
+                "type": "college",
+                "name": "University of Maryland",
+                "location": "College Park, MD, 20742",
+                "degree": "Bachelor of Science",
+                "major": "Computer Science – Machine Learning Track",
+                "minor": "Statistics",
+                "GPA": 4.0,
+                "coursework": [
+                    "Object-Oriented Programming 1 & 2",
+                    "Organization of Programming Languages",
+                    "Computer Systems",
+                    "Calculus 1, 2 & 3",
+                    "Linear Algebra",
+                    "Statistics",
+                    "Discrete Math",
+                    "Algorithms",
+                    "Data Science",
+                    "Artificial Intelligence"
+                ],
+                "start": "09/22",
+                "end": null,
+                "expected": "05/25"
+            }
+        ],
+        "experience": [
+            {
+                "title": "Research Assistant",
+                "title_link": "https://sites.google.com/view/umdturfgrasspathology/home",
+                "employment-type": "part-time",
+                "company-name": "Shahoveisi Lab",
+                "location": "College Park, MD, 20742",
+                "location-type": "Remote",
+                "start": "02/24",
+                "end": null,
+                "description": "Assisted in creating manuscripts for machine learning research projects related to identifying and managing turfgrass related diseases\nCreated 3d visualizations of machine learning model output predictions using matplotlib\nPerformed automatic hyperparameter optimization on scikit-learn and TensorFlow models to achieve highest metrics\nPerformed image dataset processing for use in a Keras deep neural network image classifier using OpenCV"
+            },
+            {
+                "title": null,
+                "title_link": "https://vikramrangarajan.github.io/SimpleTensor/",
+                "employment-type": null,
+                "company-name": "SimpleTensor",
+                "location": null,
+                "location-type": null,
+                "start": "02/24",
+                "end": null,
+                "description": "Created a library which provides Tensors with reverse-mode automatic differentiation capabilities using only numpy arrays for the Intro to Artificial Intelligence (CMSC421) class\nSupports many differentiable n-dimensional tensor operations such as matrix multiplication, convolution, element-wise functions, aggregate functions, and arithmetic operations, with support for operations along any axes\nCreated MNIST demo using convolutional, dense, and normalization layers and used techniques such as Xavier/Glorot initialization and residual connections\nFully documented using sphinx at https://vikramrangarajan.github.io/SimpleTensor/"
+            },
+            {
+                "title": null,
+                "title_link": "https://vikramrangarajan.github.io/simplepyml/",
+                "employment-type": null,
+                "company-name": "SimplePyML",
+                "location": null,
+                "location-type": null,
+                "start": "08/23",
+                "end": null,
+                "description": "Created Python library to implement and understand machine learning algorithms using numpy and scipy\nImplemented dynamic multilayer perceptron networks with more features to come\nAchieved ~98.6% accuracy with MNIST database after some testing, but not enough testing has been done to find maximum accuracy\nSuccessfully implemented conditional GPU acceleration using cupy\nFully documented using sphinx at https://vikramrangarajan.github.io/simplepyml"
+            },
+            {
+                "title": "Data Strategy Engineer",
+                "title_link": null,
+                "employment-type": "part-time",
+                "company-name": "A.M. Best Rating Services",
+                "location": "Oldwick, NJ, 08858",
+                "location-type": "Remote",
+                "start": "10/23",
+                "end": "01/24",
+                "description": "Responsible for transitioning workflows from Prefect to Apache Airflow\nLearned to use Azure Data Factory (ADF) to transform data on the Azure Cloud Platform\nUsed Airflow to orchestrate pipelines on ADF and prepared Airflow features for production use such as notifications, encryption, error handling, and failsafes\nAccelerated a data pipeline from 90 minutes down to 6 minutes"
+            },
+            {
+                "title": "Data Strategy & Architecture Intern",
+                "title_link": null,
+                "employment-type": "part-time",
+                "company-name": "A.M. Best Rating Services",
+                "location": "Oldwick, NJ, 08858",
+                "location-type": "Remote",
+                "start": "06/23",
+                "end": "07/24",
+                "description": "Learned to use and manage virtual machines such as Docker containers with services and WSL\nDiscovered Apache Airflow’s workflow management features and architecture, and presented knowledge to 7 teammates\nSet up and connected to a PostgreSQL database through Airflow to insert live government weather data hourly for over 900 cities nationwide\nCreated an ETL pipeline in 2 weeks which automatically extracted data from oracle databases and loaded them to an Azure Data Lake with Pandas as the link\nFollowed the software development life cycle to create ETLs and progress them all the way through the testing environment"
+            }
+        ],
+        "skills": {
+            "programming-languages": [
+                "Python",
+                "C",
+                "Java",
+                "OCaml",
+                "R",
+                "Rust",
+                "SAS"
+            ],
+            "technologies": [
+                "Git",
+                "Linux",
+                "SQL",
+                "Databases (Postgres, Oracle, SQL Server)",
+                "Apache Airflow",
+                "Docker",
+                "TensorFlow",
+                "PyTorch",
+                "scikit-learn",
+                "OpenCV",
+                "Azure Cloud Services",
+                "Ray Tune"
+            ]
+        },
+        "awards": [
+            {
+                "name": "Astronomer Certification for Apache Airflow Fundamentals",
+                "date": "02/24",
+                "link": "https://www.credly.com/badges/82aab031-8123-40de-b310-0c73394b5329/public_url"
+            },
+            {
+                "name": "UMD Computer Science Semester Academic Honors",
+                "date": "Fall 22 - Spring 24",
+                "link": "https://www.credly.com/badges/82aab031-8123-40de-b310-0c73394b5329/public_url"
+            }
+        ]
+    },
+    "old": {
+        "education": [
+            {
+                "type": "school",
+                "name": "West Windsor-Plainsboro High School South",
+                "location": "Princeton Junction, NJ, 08550",
+                "degree": "High School Diploma",
+                "GPA_weighted": 4.7,
+                "GPA_unweighted": 3.96
+            }
+        ]
+    }
+}
