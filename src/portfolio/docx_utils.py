@@ -20,7 +20,7 @@ class ddict(dict):
             self[key] = value
 
 
-def set_global_font(document, font_name):
+def set_global_font(document: docx.Document, font_name):
     # Set font for paragraphs
     for paragraph in document.paragraphs:
         for run in paragraph.runs:
@@ -135,9 +135,9 @@ def get_usable_width(doc):
     left_margin = section.left_margin
     right_margin = section.right_margin
 
-    page_width_cm = page_width / 360000
-    left_margin_cm = left_margin / 360000
-    right_margin_cm = right_margin / 360000
+    page_width_cm = page_width.cm
+    left_margin_cm = left_margin.cm
+    right_margin_cm = right_margin.cm
 
     # Calculate usable width
     usable_width_cm = page_width_cm - (left_margin_cm + right_margin_cm)
@@ -149,14 +149,6 @@ def set_column_widths(table, widths):
         col.width = Cm(width)
 
 
-def add_date_table(doc, rows):
-    table = doc.add_table(rows=rows, cols=2)
-    set_table_border_none(table)
-    width = get_usable_width(doc)
-    set_column_widths(table, (width * 2 / 3, width * 1 / 3))
-    return table
-
-
 def right_align_columns(table, col_idxs=(1,)):
     for idx in col_idxs:
         for row in table.rows:
@@ -164,7 +156,7 @@ def right_align_columns(table, col_idxs=(1,)):
                 paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
 
-def add_hyperlink(paragraph, text, url):
+def add_hyperlink(paragraph, text, url, font="Calibri"):
     # This gets access to the document.xml.rels file and gets a new relation id value
     part = paragraph.part
     r_id = part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
@@ -178,6 +170,7 @@ def add_hyperlink(paragraph, text, url):
 
     # Create a new run object (a wrapper over a 'w:r' element)
     new_run = Run(OxmlElement("w:r"), paragraph)
+    new_run.font.name = font
     new_run.text = text
 
     # Set the run's style to the builtin hyperlink style, defining it if necessary
@@ -186,7 +179,7 @@ def add_hyperlink(paragraph, text, url):
     # Join all the xml elements together
     hyperlink.append(new_run._element)
     paragraph._p.append(hyperlink)
-    return hyperlink
+    return hyperlink, new_run
 
 
 def get_or_create_hyperlink_style(d):
@@ -217,3 +210,4 @@ def get_or_create_hyperlink_style(d):
         del hs
 
     return "Hyperlink"
+
