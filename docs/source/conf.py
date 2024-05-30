@@ -3,16 +3,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent.parent.absolute()
 
-project = 'Portfolio'
-copyright = '2024, Vikram Rangarajan'
-author = 'Vikram Rangarajan'
+project = "Portfolio"
+copyright = "2024, Vikram Rangarajan"
+author = "Vikram Rangarajan"
 
 
 extensions = ["sphinx_design"]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
-
 
 
 with open(ROOT / "src/portfolio/portfolio.json") as portfolio_file:
@@ -26,7 +25,6 @@ github = info["github"]
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "navigation_with_keys": True,
     "navbar_end": ["theme-switcher", "navbar-icon-links"],
     "github_url": github,
     "logo": {
@@ -53,8 +51,9 @@ html_theme_options = {
         },
     ],
     "footer_end": [],
-    "search_bar_text": "Search the Portfolio..."
+    "search_bar_text": "Search the Portfolio...",
 }
-html_static_path = ['_static']
+html_context = {"default_mode": "light"}
+html_static_path = ["_static"]
 html_show_sphinx = False
 html_show_sourcelink = False

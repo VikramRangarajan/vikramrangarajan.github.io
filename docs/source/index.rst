@@ -5,7 +5,7 @@ Vikram Rangarajan - Portfolio
 Education
 =========
 
-.. card:: University of Maryland - 09/22 to Present
+.. card:: University of Maryland - 09/22 to Present, Expected 05/25
 
 	Degree: Bachelor of Science
 
@@ -141,5 +141,4 @@ Awards & Certifications
 	:link: https://www.credly.com/badges/82aab031-8123-40de-b310-0c73394b5329/public_url
 
 .. card:: UMD Computer Science Semester Academic Honors - Fall 22 - Spring 24
-	:link: https://www.credly.com/badges/82aab031-8123-40de-b310-0c73394b5329/public_url
 

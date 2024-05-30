@@ -21,10 +21,14 @@ with open(ROOT / "src/portfolio/portfolio.json") as portfolio_file:
 subtitle(f, "Education")
 education = por.current.education
 for edu in education:
-    end = edu["end"] if edu["end"] is not None else "Present"
+    time = edu["start"]
+    if edu["end"] is None:
+        time += " to Present, Expected " + edu["expected"]
+    else:
+        time += " to " + edu["end"]
     card(
         f,
-        f"{edu['name']} - {edu['start']} to {end}",
+        f"{edu['name']} - {time}",
         f"Degree: {edu['degree']}\nMajor: {edu['major']}\nMinor: {edu['minor']}\nGPA: {edu['GPA']}",
     )
 
