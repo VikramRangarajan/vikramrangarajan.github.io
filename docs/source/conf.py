@@ -1,44 +1,60 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+import json
+from pathlib import Path
 
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+ROOT = Path(__file__).parent.parent.parent.absolute()
 
 project = 'Portfolio'
 copyright = '2024, Vikram Rangarajan'
 author = 'Vikram Rangarajan'
 
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = ["sphinx_design"]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
 
 
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+with open(ROOT / "src/portfolio/portfolio.json") as portfolio_file:
+    por = json.load(portfolio_file)
+
+info = por["current"]["info"]
+email = info["email"]
+phone = info["phone"]
+linkedin = info["linkedin"]
+github = info["github"]
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "navigation_with_keys": True,
     "navbar_end": ["theme-switcher", "navbar-icon-links"],
-    "github_url": "https://github.com/VikramRangarajan/",
+    "github_url": github,
     "logo": {
         "text": "Portfolio",
     },
-    # "navigation_depth": -1,
     "icon_links": [
         {
             "name": "LinkedIn",
-            "url": "https://www.linkedin.com/in/vikram-rangarajan/",
+            "url": linkedin,
             "icon": "fa-brands fa-linkedin",
             "type": "fontawesome",
         },
+        {
+            "name": "Email",
+            "url": f"mailto:{email}",
+            "icon": "fa-solid fa-envelope",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Phone",
+            "url": f"tel:{phone}",
+            "icon": "fa-solid fa-phone",
+            "type": "fontawesome",
+        },
     ],
+    "footer_end": [],
+    "search_bar_text": "Search the Portfolio..."
 }
 html_static_path = ['_static']
+html_show_sphinx = False
+html_show_sourcelink = False
