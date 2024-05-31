@@ -3,3 +3,4 @@ pydata-sphinx-theme==0.15.2
 python-docx==1.1.2
 ruff==0.4.5
 sphinx-design==0.5.0
+sphinx-simplepdf==1.6.0

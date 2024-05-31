@@ -8,7 +8,10 @@ copyright = "2024, Vikram Rangarajan"
 author = "Vikram Rangarajan"
 
 
-extensions = ["sphinx_design"]
+extensions = [
+    "sphinx_design",
+    "sphinx_simplepdf",
+]
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -53,7 +56,6 @@ html_theme_options = {
     "footer_end": [],
     "search_bar_text": "Search the Portfolio...",
 }
-html_context = {"default_mode": "light"}
 html_static_path = ["_static"]
 html_show_sphinx = False
 html_show_sourcelink = False

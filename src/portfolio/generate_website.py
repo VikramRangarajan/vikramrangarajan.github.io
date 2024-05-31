@@ -1,14 +1,12 @@
-import os
 import json
 from pathlib import Path
 from rst_utils import title, subtitle, card, card_carousel
 from docx_utils import ddict
 import re
+from portfolio import create_docx, docx_to_pdf
 
 ROOT = Path(__file__).parent.parent.parent.absolute()
 
-if os.path.exists(ROOT / "docs/source/index.rst"):
-    os.remove(ROOT / "docs/source/index.rst")
 f = open(ROOT / "docs/source/index.rst", "w")
 title(f, "Vikram Rangarajan - Portfolio")
 
@@ -57,7 +55,7 @@ for skill_group in skill_groups.keys():
     name = re.sub("[^0-9a-zA-Z]+", " ", skill_group)
 
     f.write(f"{name.capitalize()}\n\n")
-    card_carousel(f, skills, [None] * len(skills), [None] * len(skills))
+    card_carousel(f, skills, [None] * len(skills), [None] * len(skills), 2)
 
 # Awards Section
 subtitle(f, "Awards & Certifications")
@@ -69,4 +67,18 @@ for awd in awards:
         None,
         awd["link"],
     )
+
+f.write("\n.. toctree::\n\t:hidden:\n\n\tresumes")
 f.close()
+
+# Generate Resume Documents
+create_docx(ROOT / "docs/source/_static/resume.docx")
+docx_to_pdf(ROOT / "docs/source/_static/resume.docx")
+
+# Create Resumes tab
+
+f = open(ROOT / "docs/source/resumes.rst", "w")
+title(f, "Resume Downloads")
+f.write("\n:download:`PDF <_static/resume.pdf>`\n")
+f.write("\n:download:`DOCX <_static/resume.docx>`\n\n")
+f.write(".. pdf-include:: _static/resume.pdf#view=Fit")

@@ -10,8 +10,10 @@ from docx_utils import (
     get_usable_width,
     add_hyperlink,
 )
+from subprocess import run
 
-def create_docx():
+
+def create_docx(path="formatted_document.docx"):
     doc = Document()
     sections = doc.sections
     for section in sections:
@@ -21,7 +23,6 @@ def create_docx():
         section.right_margin = Cm(1)
 
     ROOT = Path(__file__).parent.absolute()
-
 
     with open(ROOT / "portfolio.json") as f:
         por = ddict(json.load(f))
@@ -120,7 +121,6 @@ def create_docx():
     p.add_run("\nTechnologies: ").bold = True
     p.add_run(", ".join(por.current.skills.technologies))
 
-
     # Certs Section
     p = doc.add_paragraph()
     p.add_run("Awards & Certifications").font.size = Pt(16)
@@ -133,7 +133,23 @@ def create_docx():
         p.add_run(f"{award['date']}\n").italic = True
 
     set_global_font(doc, "Calibri")
-    doc.save("formatted_document.docx")
+    doc.save(path)
+
+
+def docx_to_pdf(docx_file: Path):
+    run(
+        [
+            "libreoffice",
+            "--headless",
+            "--convert-to",
+            "pdf",
+            str(docx_file),
+            "--outdir",
+            str(docx_file.parent),
+        ]
+    )
+
 
 if __name__ == "__main__":
     create_docx()
+    docx_to_pdf("formatted_document.docx")
