@@ -90,7 +90,7 @@ Technical Skills
 
 Programming languages
 
-.. card-carousel:: 5
+.. card-carousel:: 2
 
 	.. card:: Python
 
@@ -108,7 +108,7 @@ Programming languages
 
 Technologies
 
-.. card-carousel:: 5
+.. card-carousel:: 2
 
 	.. card:: Git
 
@@ -142,3 +142,8 @@ Awards & Certifications
 
 .. card:: UMD Computer Science Semester Academic Honors - Fall 22 - Spring 24
 
+
+.. toctree::
+	:hidden:
+
+	resumes
