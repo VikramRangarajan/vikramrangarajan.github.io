@@ -19,8 +19,9 @@ jobs:
       - name: Install LibreOffice Writer
         run: |
           export DEBIAN_FRONTEND=noninteractive
-          apt update && apt upgrade -y
-          apt install --no-install-recommends libreoffice-writer libreoffice-java-common -y
+          sudo apt update -y
+          sudo apt upgrade -y
+          sudo apt install --no-install-recommends libreoffice-writer libreoffice-java-common -y
       - name: Sphinx build
         run: |
           python3 src/portfolio/generate_website.py
