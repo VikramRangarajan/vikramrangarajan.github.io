@@ -1,0 +1,29 @@
+name: website
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.9'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Sphinx build
+        run: |
+          python3 src/portfolio/generate_website.py
+          cd docs
+          make html
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build
