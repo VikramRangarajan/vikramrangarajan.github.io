@@ -1,26 +1,16 @@
-from docx.oxml.shared import OxmlElement
+from docx.oxml.parser import OxmlElement
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.style import WD_STYLE_TYPE
 from docx.text.run import Run
-from docx.shared import Cm
+from docx.text.paragraph import Paragraph
+from docx.table import _Cell
+from docx.shared import Cm, RGBColor
 from docx.opc.constants import RELATIONSHIP_TYPE
-import docx
+from docx.document import Document
 
 
-class ddict(dict):
-    __getattr__ = dict.__getitem__
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
-    __str__ = dict.__str__
-
-    def __init__(self, dct):
-        for key, value in dct.items():
-            if hasattr(value, "keys"):
-                value = ddict(value)
-            self[key] = value
-
-
-def set_global_font(document: docx.Document, font_name):
+def set_global_font(document: Document, font_name):
     # Set font for paragraphs
     for paragraph in document.paragraphs:
         for run in paragraph.runs:
@@ -35,10 +25,11 @@ def set_global_font(document: docx.Document, font_name):
                         run.font.name = font_name
 
 
-def insertHR(paragraph):
+def insertHR(paragraph: Paragraph):
     p = paragraph._p  # p is the <w:p> XML element
     pPr = p.get_or_add_pPr()
     pBdr = OxmlElement("w:pBdr")
+
     pPr.insert_element_before(
         pBdr,
         "w:shd",
@@ -77,7 +68,7 @@ def insertHR(paragraph):
     pBdr.append(bottom)
 
 
-def set_cell_border(cell, **kwargs):
+def set_cell_border(cell: _Cell, **kwargs):
     """
     Set cell`s border
     Usage:
@@ -106,7 +97,7 @@ def set_cell_border(cell, **kwargs):
             tag = "w:{}".format(edge)
 
             # check for tag existnace, if none found, then create one
-            element = tcBorders.find(qn(tag))
+            element = tcBorders.find(qn(tag), None)
             if element is None:
                 element = OxmlElement(tag)
                 tcBorders.append(element)
@@ -158,18 +149,17 @@ def right_align_columns(table, col_idxs=(1,)):
 
 def add_hyperlink(paragraph, text, url, font="Calibri"):
     # This gets access to the document.xml.rels file and gets a new relation id value
+
     part = paragraph.part
     r_id = part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
 
     # Create the w:hyperlink tag and add needed values
     hyperlink = OxmlElement("w:hyperlink")
-    hyperlink.set(
-        qn("r:id"),
-        r_id,
-    )
+    hyperlink.set(qn("r:id"), r_id)
 
     # Create a new run object (a wrapper over a 'w:r' element)
     new_run = Run(OxmlElement("w:r"), paragraph)
+    # new_run = Run(CT_R(), paragraph)
     new_run.font.name = font
     new_run.text = text
 
@@ -193,21 +183,18 @@ def get_or_create_hyperlink_style(d):
     if "Hyperlink" not in d.styles:
         if "Default Character Font" not in d.styles:
             ds = d.styles.add_style(
-                "Default Character Font", docx.enum.style.WD_STYLE_TYPE.CHARACTER, True
+                "Default Character Font", WD_STYLE_TYPE.CHARACTER, True
             )
-            ds.element.set(docx.oxml.shared.qn("w:default"), "1")
+            ds.element.set(qn("w:default"), "1")
             ds.priority = 1
             ds.hidden = True
             ds.unhide_when_used = True
             del ds
-        hs = d.styles.add_style(
-            "Hyperlink", docx.enum.style.WD_STYLE_TYPE.CHARACTER, True
-        )
+        hs = d.styles.add_style("Hyperlink", WD_STYLE_TYPE.CHARACTER, True)
         hs.base_style = d.styles["Default Character Font"]
         hs.unhide_when_used = True
-        hs.font.color.rgb = docx.shared.RGBColor(0x05, 0x63, 0xC1)
+        hs.font.color.rgb = RGBColor(0x05, 0x63, 0xC1)
         hs.font.underline = True
         del hs
 
     return "Hyperlink"
-

@@ -21,15 +21,15 @@ Experience & Projects
 .. card:: Shahoveisi Lab - 02/24 to Present
 	:link: https://sites.google.com/view/umdturfgrasspathology/home
 
-	Research Assistant
+	Undergraduate Research Assistant
 
 	Assisted in creating manuscripts for machine learning research projects related to identifying and managing turfgrass related diseases
 
-	Created 3d visualizations of machine learning model output predictions using matplotlib
+	Used methods such as transfer learning and gradual unfreezing to train highly accurate nematode image classifiers
 
-	Performed automatic hyperparameter optimization on scikit-learn and TensorFlow models to achieve highest metrics
+	Performed automatic hyperparameter optimization to train scikit-learn and PyTorch models to achieve highest metrics
 
-	Performed image dataset processing for use in a Keras deep neural network image classifier using OpenCV
+	Performed image dataset preprocessing for use in a PyTorch deep neural network image classifier using OpenCV
 
 .. card:: SimpleTensor - 02/24 to Present
 	:link: https://vikramrangarajan.github.io/SimpleTensor/
@@ -94,15 +94,15 @@ Programming languages
 
 	.. card:: Python
 
-	.. card:: C
+	.. card:: C/C++/CUDA
+
+	.. card:: Rust
 
 	.. card:: Java
 
 	.. card:: OCaml
 
 	.. card:: R
-
-	.. card:: Rust
 
 	.. card:: SAS
 
@@ -114,25 +114,27 @@ Technologies
 
 	.. card:: Linux
 
-	.. card:: SQL
-
-	.. card:: Databases (Postgres, Oracle, SQL Server)
-
-	.. card:: Apache Airflow
-
-	.. card:: Docker
-
 	.. card:: TensorFlow
 
 	.. card:: PyTorch
+
+	.. card:: NumPy
 
 	.. card:: scikit-learn
 
 	.. card:: OpenCV
 
+	.. card:: Ray
+
+	.. card:: Docker
+
 	.. card:: Azure Cloud Services
 
-	.. card:: Ray Tune
+	.. card:: SQL
+
+	.. card:: Relational Databases (Postgres, Oracle, SQL Server)
+
+	.. card:: Apache Airflow
 
 Awards & Certifications
 =======================
@@ -143,6 +145,10 @@ Awards & Certifications
 .. card:: UMD Computer Science Semester Academic Honors - Fall 22 - Spring 24
 
 
+.. toctree::
+	:hidden:
+
+	publications
 .. toctree::
 	:hidden:
 
