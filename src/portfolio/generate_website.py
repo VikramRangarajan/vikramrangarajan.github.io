@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import os
 
 from rst_utils import title, subtitle, card, card_carousel
 from generate_resume import create_docx, docx_to_pdf
@@ -104,5 +105,7 @@ with open(ROOT / "docs" / "source" / "resumes.rst", "w") as res_file:
 f.close()
 
 # Generate Resume Documents
+if not os.path.exists(ROOT / "docs" / "source" / "_static"):
+    os.mkdir(ROOT / "docs" / "source" / "_static")
 create_docx(ROOT / "docs" / "source" / "_static" / "resume.docx")
 docx_to_pdf(ROOT / "docs" / "source" / "_static" / "resume.docx")
