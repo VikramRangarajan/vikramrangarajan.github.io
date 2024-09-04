@@ -5,14 +5,38 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.text.run import Run
 from docx.text.paragraph import Paragraph
 from docx.table import _Cell
-from docx.shared import Cm, RGBColor
+from docx.shared import Cm, RGBColor, Pt
 from docx.opc.constants import RELATIONSHIP_TYPE
 from docx.document import Document
+
+
+ITALIC = 0
+BOLD = 1
+UNDERLINE = 2
+
+
+def add_run(p: Paragraph, text: str, font_size: Pt, *args) -> Run:
+    r = p.add_run(text)
+    r.font.size = font_size
+    for arg in args:
+        if arg == ITALIC:
+            r.italic = True
+        if arg == BOLD:
+            r.bold = True
+        if arg == UNDERLINE:
+            r.underline = True
+    return r
 
 
 def set_global_font(document: Document, font_name):
     # Set font for paragraphs
     for paragraph in document.paragraphs:
+        # Set font for hyperlinks
+        for hl in paragraph.hyperlinks:
+            for run in hl.runs:
+                run.font.name = font_name
+
+
         for run in paragraph.runs:
             run.font.name = font_name
 
@@ -23,6 +47,7 @@ def set_global_font(document: Document, font_name):
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.name = font_name
+
 
 
 def insertHR(paragraph: Paragraph):
@@ -126,13 +151,13 @@ def get_usable_width(doc):
     left_margin = section.left_margin
     right_margin = section.right_margin
 
-    page_width_cm = page_width.cm
-    left_margin_cm = left_margin.cm
-    right_margin_cm = right_margin.cm
+    page_width_inches = page_width.inches
+    left_margin_inches = left_margin.inches
+    right_margin_inches = right_margin.inches
 
     # Calculate usable width
-    usable_width_cm = page_width_cm - (left_margin_cm + right_margin_cm)
-    return usable_width_cm
+    usable_width_inches = page_width_inches - (left_margin_inches + right_margin_inches)
+    return usable_width_inches
 
 
 def set_column_widths(table, widths):
@@ -147,9 +172,8 @@ def right_align_columns(table, col_idxs=(1,)):
                 paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
 
-def add_hyperlink(paragraph, text, url, font="Calibri"):
+def add_hyperlink(paragraph, text, url, font_size):
     # This gets access to the document.xml.rels file and gets a new relation id value
-
     part = paragraph.part
     r_id = part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
 
@@ -159,8 +183,7 @@ def add_hyperlink(paragraph, text, url, font="Calibri"):
 
     # Create a new run object (a wrapper over a 'w:r' element)
     new_run = Run(OxmlElement("w:r"), paragraph)
-    # new_run = Run(CT_R(), paragraph)
-    new_run.font.name = font
+    new_run.font.size = font_size
     new_run.text = text
 
     # Set the run's style to the builtin hyperlink style, defining it if necessary
@@ -169,6 +192,7 @@ def add_hyperlink(paragraph, text, url, font="Calibri"):
     # Join all the xml elements together
     hyperlink.append(new_run._element)
     paragraph._p.append(hyperlink)
+    paragraph._p.r_lst.append(new_run)
     return hyperlink, new_run
 
 

@@ -4,7 +4,7 @@ Publications
 
 .. card:: Deep Learning Detection of Seven Plant-Parasitic Nematode Genera Associated with Turfgrass
 
-	Fereshteh Shahoveisi, Benjamin Waldo, **Vikram Rangarajan**, et al.
+	Fereshteh Shahoveisi, **Vikram Rangarajan**, Benjamin Waldo, Sadegh Jafari
 
 	In Preparation, 2024
 

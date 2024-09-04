@@ -24,7 +24,7 @@ exclude_patterns = []
 
 
 with open(ROOT / "src/portfolio/portfolio.json") as f:
-    por = data.WholePortfolio.model_validate_json(f.read())
+    por = data.Portfolio.model_validate_json(f.read())
 
 info = por.info
 email = info.email

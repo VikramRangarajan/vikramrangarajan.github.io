@@ -4,7 +4,7 @@ import os
 
 from rst_utils import title, subtitle, card, card_carousel
 from generate_resume import create_docx, docx_to_pdf
-from data import WholePortfolio, str_date
+from data import Portfolio, str_date, Margins, DocxConfig
 
 ROOT = Path(__file__).parent.parent.parent.absolute()
 
@@ -13,14 +13,16 @@ title(f, "Vikram Rangarajan - Portfolio")
 
 
 with open(ROOT / "src" / "portfolio" / "portfolio.json") as portfolio_file:
-    por = WholePortfolio.model_validate_json(portfolio_file.read())
+    por = Portfolio.model_validate_json(portfolio_file.read())
 
 
 # Education Section
 subtitle(f, "Education")
-education = por.current.education
+education = por.education
 if education is not None:
     for edu in education:
+        if edu.current is False:
+            continue
         time = str_date(edu.start)
         if edu.end is None and edu.expected is not None:
             time += " to Present, Expected " + str_date(edu.expected)
@@ -34,15 +36,17 @@ if education is not None:
 
 # Experience Section
 subtitle(f, "Experience & Projects")
-experiences = por.current.experience
+experiences = por.experience
 if experiences is not None:
     for exp in experiences:
+        if exp.current is False:
+            continue
         end = str_date(exp.end) if exp.end is not None else "Present"
         body_text = ""
         if exp.title is not None:
             body_text += exp.title
         if exp.description is not None:
-            body_text += "\n" + exp.description
+            body_text += "\n" + "\n".join(exp.description)
         card(
             f,
             f"{exp.company_name} - {str_date(exp.start)} to {end}",
@@ -51,7 +55,7 @@ if experiences is not None:
         )
 
 # Skills Section
-skills = por.current.skills
+skills = por.skills
 if skills is not None:
     subtitle(f, "Technical Skills")
     for name in skills.keys():
@@ -63,10 +67,12 @@ if skills is not None:
         )
 
 # Awards Section
-awards = por.current.awards
+awards = por.awards
 if awards is not None:
     subtitle(f, "Awards & Certifications")
     for awd in awards:
+        if awd.current is False:
+            continue
         awd_date = awd.date if isinstance(awd.date, str) else str_date(awd.date)
         card(
             f,
@@ -77,11 +83,11 @@ if awards is not None:
 
 
 # Create Publications tab
-if por.current.publications is not None:
+if por.publications is not None:
     f.write("\n.. toctree::\n\t:hidden:\n\n\tpublications")
     with open(ROOT / "docs" / "source" / "publications.rst", "w") as pub_file:
         title(pub_file, "Publications")
-        for pub in por.current.publications:
+        for pub in por.publications:
             authors_str = ", ".join(pub.authors)
             authors_str = authors_str.replace(por.info.name, f"**{por.info.name}**")
             if pub.journal is not None:
@@ -107,5 +113,11 @@ f.close()
 # Generate Resume Documents
 if not os.path.exists(ROOT / "docs" / "source" / "_static"):
     os.mkdir(ROOT / "docs" / "source" / "_static")
-create_docx(ROOT / "docs" / "source" / "_static" / "resume.docx")
+docx_config = DocxConfig(
+    margins=Margins(top=0.75, bottom=0.75, left=0.75, right=0.75),
+    title_font_size=20,
+    heading_font_size=14,
+    text_font_size=11,
+)
+create_docx(ROOT / "docs" / "source" / "_static" / "resume.docx", docx_config)
 docx_to_pdf(ROOT / "docs" / "source" / "_static" / "resume.docx")

@@ -30,6 +30,7 @@ class Education(BaseModel):
     start: date
     end: Optional[date]
     expected: Optional[date]
+    current: bool
 
 
 class Experience(BaseModel):
@@ -41,7 +42,8 @@ class Experience(BaseModel):
     location_type: Optional[str]
     start: date
     end: Optional[date]
-    description: str
+    description: list[str]
+    current: bool
 
 
 class Publication(BaseModel):
@@ -57,9 +59,11 @@ class Award(BaseModel):
     name: str
     date: date | str
     link: Optional[str]
+    current: bool
 
 
 class Portfolio(BaseModel):
+    info: UserInfo
     education: Optional[list[Education]]
     publications: Optional[list[Publication]]
     experience: Optional[list[Experience]]
@@ -67,7 +71,16 @@ class Portfolio(BaseModel):
     awards: Optional[list[Award]]
 
 
-class WholePortfolio(BaseModel):
-    current: Portfolio
-    old: Portfolio
-    info: UserInfo
+class Margins(BaseModel):
+    top: float
+    left: float
+    right: float
+    bottom: float
+
+
+class DocxConfig(BaseModel):
+    margins: Margins
+    title_font_size: int
+    heading_font_size: int
+    text_font_size: int
+
