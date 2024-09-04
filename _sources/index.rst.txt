@@ -27,11 +27,11 @@ Experience & Projects
 
 	Used methods such as transfer learning and gradual unfreezing to train highly accurate nematode image classifiers
 
-	Performed automatic hyperparameter optimization to train scikit-learn and PyTorch models to achieve highest metrics
+	Performed automatic hyperparameter optimization using Ray Tune to train scikit-learn and PyTorch models to achieve highest metrics
 
-	Performed image dataset preprocessing for use in a PyTorch deep neural network image classifier using OpenCV
+	Performed parallelized automatic image dataset preprocessing using OpenCV and NumPy
 
-.. card:: SimpleTensor - 02/24 to Present
+.. card:: SimpleTensor - 02/24 to 05/24
 	:link: https://vikramrangarajan.github.io/SimpleTensor/
 
 	
@@ -44,46 +44,17 @@ Experience & Projects
 
 	Fully documented using sphinx at https://vikramrangarajan.github.io/SimpleTensor/
 
-.. card:: SimplePyML - 08/23 to Present
-	:link: https://vikramrangarajan.github.io/simplepyml/
-
-	
-
-	Created Python library to implement and understand machine learning algorithms using numpy and scipy
-
-	Implemented dynamic multilayer perceptron networks with more features to come
-
-	Achieved ~98.6% accuracy with MNIST database after some testing, but not enough testing has been done to find maximum accuracy
-
-	Successfully implemented conditional GPU acceleration using cupy
-
-	Fully documented using sphinx at https://vikramrangarajan.github.io/simplepyml
-
-.. card:: A.M. Best Rating Services - 10/23 to 01/24
+.. card:: A.M. Best Rating Services - 06/23 to 01/24
 
 	Data Strategy Engineer
 
-	Responsible for transitioning workflows from Prefect to Apache Airflow
+	Gained advanced experience with relational databases, Docker, Linux, Python, and Pandas
 
-	Learned to use Azure Data Factory (ADF) to transform data on the Azure Cloud Platform
+	Learned to use Azure Data Factory (ADF) to transform and move data on the Azure Cloud Platform
 
-	Used Airflow to orchestrate pipelines on ADF and prepared Airflow features for production use such as notifications, encryption, error handling, and failsafes
+	Used Apache Airflow to orchestrate ETL pipelines between on-prem databases and Azure
 
-	Accelerated a data pipeline from 90 minutes down to 6 minutes
-
-.. card:: A.M. Best Rating Services - 06/23 to 07/24
-
-	Data Strategy & Architecture Intern
-
-	Learned to use and manage virtual machines such as Docker containers with services and WSL
-
-	Discovered Apache Airflow’s workflow management features and architecture, and presented knowledge to 7 teammates
-
-	Set up and connected to a PostgreSQL database through Airflow to insert live government weather data hourly for over 900 cities nationwide
-
-	Created an ETL pipeline in 2 weeks which automatically extracted data from oracle databases and loaded them to an Azure Data Lake with Pandas as the link
-
-	Followed the software development life cycle to create ETLs and progress them all the way through the testing environment
+	Accelerated a data pipeline's execution time from 90 minutes down to 6 minutes using ADF
 
 Technical Skills
 ================
@@ -110,13 +81,9 @@ Technologies
 
 .. card-carousel:: 2
 
-	.. card:: Git
-
-	.. card:: Linux
+	.. card:: PyTorch
 
 	.. card:: TensorFlow
-
-	.. card:: PyTorch
 
 	.. card:: NumPy
 
@@ -124,9 +91,13 @@ Technologies
 
 	.. card:: OpenCV
 
-	.. card:: Ray
+	.. card:: Git
+
+	.. card:: Linux
 
 	.. card:: Docker
+
+	.. card:: Ray
 
 	.. card:: Azure Cloud Services
 
