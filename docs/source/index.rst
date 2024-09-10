@@ -29,7 +29,7 @@ Experience & Projects
 
 	Performed automatic hyperparameter optimization using Ray Tune to train scikit-learn and PyTorch models to achieve highest metrics
 
-	Performed image dataset preprocessing for use in a PyTorch deep neural network image classifier using OpenCV
+	Performed parallelized automatic image dataset preprocessing using OpenCV and NumPy
 
 .. card:: SimpleTensor - 02/24 to 05/24
 	:link: https://vikramrangarajan.github.io/SimpleTensor/
