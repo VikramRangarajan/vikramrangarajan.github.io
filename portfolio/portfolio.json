@@ -1,0 +1,298 @@
+{
+    "info": {
+        "name": "Vikram Rangarajan",
+        "email": "vikram.rangaraja@gmail.com",
+        "phone": "609-608-6762",
+        "linkedin": "https://linkedin.com/in/vikram-rangarajan/",
+        "github": "https://github.com/VikramRangarajan/",
+        "location": "Plainsboro, NJ, 08536",
+        "website": "https://vikramrangarajan.github.io/"
+    },
+    "education": [
+        {
+            "education_type": "college",
+            "name": "University of Maryland",
+            "location": "College Park, MD, 20742",
+            "degree": "Bachelor of Science",
+            "major": "Computer Science – Machine Learning Track",
+            "minor": "Statistics",
+            "gpa": 4.0,
+            "coursework": [
+                "Artificial Intelligence",
+                "Machine Learning",
+                "Data Science",
+                "Parallel Computing",
+                "Calculus 1, 2 & 3",
+                "Statistics",
+                "Linear Algebra",
+                "Compilers",
+                "Computer Systems",
+                "Algorithms",
+                "Organization of Programming Languages",
+                "Object-Oriented Programming 1 & 2",
+                "Discrete Math"
+            ],
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 9,
+                        "year": 2022
+                    }
+                },
+                "end": {
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 5,
+                            "year": 2025
+                        }
+                    }
+                }
+            },
+            "current": true
+        },
+        {
+            "education_type": "school",
+            "name": "West Windsor-Plainsboro High School South",
+            "location": "Princeton Junction, NJ, 08550",
+            "degree": "High School Diploma",
+            "major": null,
+            "minor": null,
+            "gpa": 4.7,
+            "coursework": null,
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 9,
+                        "year": 2018
+                    }
+                },
+                "end": {
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 6,
+                            "year": 2022
+                        }
+                    }
+                }
+            },
+            "expected": null,
+            "current": false
+        }
+    ],
+    "publications": [
+        {
+            "title": "Deep Learning Detection of Seven Plant-Parasitic Nematode Genera Associated with Turfgrass",
+            "authors": [
+                "Fereshteh Shahoveisi",
+                "Vikram Rangarajan",
+                "Benjamin Waldo",
+                "Sadegh Jafari"
+            ],
+            "status": "In Preparation, 2024",
+            "journal": null,
+            "link": null,
+            "date": null
+        },
+        {
+            "title": "Enhancing Precision Weed Prediction in Golf Courses Using Machine Learning Algorithms",
+            "authors": [
+                "Fereshteh Shahoveisi",
+                "Vikram Rangarajan",
+                "et al."
+            ],
+            "status": "In Preparation, 2024",
+            "journal": null,
+            "link": null,
+            "date": null
+        }
+    ],
+    "experience": [
+        {
+            "title": "Undergraduate Research Assistant",
+            "title_link": "https://sites.google.com/view/umdturfgrasspathology/home",
+            "employment_type": "part-time",
+            "company_name": "Shahoveisi Lab",
+            "location": "College Park, MD, 20742",
+            "location_type": "Remote",
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 2,
+                        "year": 2024
+                    }
+                },
+                "end": {
+                    "Current": {
+                        "expected": null
+                    }
+                }
+            },
+            "current": true,
+            "description": [
+                "Assisted in creating manuscripts for machine learning research projects related to identifying and managing turfgrass related diseases",
+                "Used methods such as transfer learning and gradual unfreezing to train highly accurate nematode image classifiers",
+                "Performed automatic hyperparameter optimization using Ray Tune to train scikit-learn and PyTorch models to achieve highest metrics",
+                "Performed parallelized automatic image dataset preprocessing using OpenCV and NumPy"
+            ]
+        },
+        {
+            "title": null,
+            "title_link": "https://vikramrangarajan.github.io/SimpleTensor/",
+            "employment_type": null,
+            "company_name": "SimpleTensor",
+            "location": null,
+            "location_type": null,
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 2,
+                        "year": 2024
+                    }
+                },
+                "end": {
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 5,
+                            "year": 2024
+                        }
+                    }
+                }
+            },
+            "current": true,
+            "description": [
+                "Created a library which provides Tensors with reverse-mode automatic differentiation capabilities using only numpy arrays for the Intro to Artificial Intelligence (CMSC421) class",
+                "Supports many differentiable n-dimensional tensor operations such as matrix multiplication, convolution, element-wise functions, aggregate functions, and arithmetic operations, with support for operations along any axes",
+                "Created MNIST demo using convolutional, dense, and normalization layers and used techniques such as Xavier/Glorot initialization and residual connections",
+                "Fully documented using sphinx at https://vikramrangarajan.github.io/SimpleTensor/"
+            ]
+        },
+        {
+            "title": null,
+            "title_link": "https://vikramrangarajan.github.io/simplepyml/",
+            "employment_type": null,
+            "company_name": "SimplePyML",
+            "location": null,
+            "location_type": null,
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 8,
+                        "year": 2023
+                    }
+                },
+                "end": {
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 10,
+                            "year": 2023
+                        }
+                    }
+                }
+            },
+            "current": false,
+            "description": [
+                "Created Python library to implement and understand machine learning algorithms using numpy and scipy",
+                "Implemented dynamic multilayer perceptron networks with more features to come",
+                "Achieved ~98.6% accuracy with MNIST database after some testing, but not enough testing has been done to find maximum accuracy",
+                "Successfully implemented conditional GPU acceleration using cupy",
+                "Fully documented using sphinx at https://vikramrangarajan.github.io/simplepyml"
+            ]
+        },
+        {
+            "title": "Data Strategy Engineer",
+            "title_link": null,
+            "employment_type": "part-time",
+            "company_name": "A.M. Best Rating Services",
+            "location": "Oldwick, NJ, 08858",
+            "location_type": "Remote",
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 6,
+                        "year": 2023
+                    }
+                },
+                "end": {
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 1,
+                            "year": 2024
+                        }
+                    }
+                }
+            },
+            "current": true,
+            "description": [
+                "Gained advanced experience with relational databases, Docker, Linux, Python, and Pandas",
+                "Learned to use Azure Data Factory (ADF) to transform and move data on the Azure Cloud Platform",
+                "Used Apache Airflow to orchestrate ETL pipelines between on-prem databases and Azure",
+                "Accelerated a data pipeline's execution time from 90 minutes down to 6 minutes using ADF"
+            ]
+        }
+    ],
+    "skills": [
+        {
+            "group_name": "Programming Languages",
+            "skills": [
+                "Python",
+                "C/C++/CUDA",
+                "Rust",
+                "Java",
+                "OCaml",
+                "R",
+                "SAS"
+            ]
+        },
+        {
+            "group_name": "Technologies",
+            "skills": [
+                "PyTorch",
+                "TensorFlow",
+                "NumPy",
+                "scikit-learn",
+                "OpenCV",
+                "Git",
+                "Linux",
+                "Docker",
+                "Ray",
+                "Azure Cloud Services",
+                "SQL",
+                "Relational Databases (Postgres, Oracle, SQL Server)",
+                "Apache Airflow"
+            ]
+        }
+    ],
+    "awards": [
+        {
+            "name": "Astronomer Certification for Apache Airflow Fundamentals",
+            "date": {
+                "NumDate": {
+                    "day": null,
+                    "month": 2,
+                    "year": 2024
+                }
+            },
+            "current": true,
+            "link": "https://www.credly.com/badges/82aab031-8123-40de-b310-0c73394b5329/public_url"
+        },
+        {
+            "name": "UMD Computer Science Semester Academic Honors",
+            "date": {
+                "StringDate": "Fall 22 - Spring 24"
+            },
+            "current": true,
+            "link": null
+        }
+    ]
+}
