@@ -24,12 +24,12 @@ impl Date {
                 day: None,
                 month,
                 year,
-            } => format!("{}/{}", month, year),
+            } => format!("{:02}/{}", month, year % 100),
             Date::NumDate {
                 day: Some(daynum),
                 month,
                 year,
-            } => format!("{}/{}/{}", month, daynum, year),
+            } => format!("{:02}/{:02}/{}", month, daynum, year % 100),
             Date::StringDate(s) => s.to_string(),
         }
     }
