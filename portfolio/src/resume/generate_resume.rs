@@ -3,7 +3,7 @@ use std::path::Path;
 
 use crate::{
     data::{load_portfolio, EndingDate, Portfolio},
-    inches_to_twips, PTrait,
+    hyperlink_run, inches_to_twips, PTrait,
 };
 
 pub const TITLE_SIZE: usize = 40;
@@ -20,33 +20,21 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text("Website: "))
         .add_hyperlink(
             Hyperlink::new(por.info.website.clone(), HyperlinkType::External)
-                .add_run(
-                    Run::new()
-                        .add_text(por.info.website.clone())
-                        .color("0563C1")
-                        .underline("single"),
-                )
+                .add_run(hyperlink_run(por.info.website.clone()))
                 .add_run(Run::new().add_text("\t")),
         )
         .add_run(Run::new().add_text("Email: "))
         .add_hyperlink(
-            Hyperlink::new(por.info.email.clone(), HyperlinkType::External).add_run(
-                Run::new()
-                    .add_text(por.info.email.clone())
-                    .color("0563C1")
-                    .underline("single")
-                    .add_break(BreakType::TextWrapping),
-            ),
+            Hyperlink::new(
+                &format!("mailto:{}", por.info.email.clone()),
+                HyperlinkType::External,
+            )
+            .add_run(hyperlink_run(por.info.email.clone()).add_break(BreakType::TextWrapping)),
         )
         .add_run(Run::new().add_text("LinkedIn: "))
         .add_hyperlink(
             Hyperlink::new(por.info.linkedin.clone(), HyperlinkType::External)
-                .add_run(
-                    Run::new()
-                        .add_text(por.info.linkedin.clone())
-                        .color("0563C1")
-                        .underline("single"),
-                )
+                .add_run(hyperlink_run(por.info.linkedin.clone()))
                 .add_run(Run::new().add_text("\t")),
         )
         .add_run(Run::new().add_text("Location: "))
@@ -58,22 +46,16 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text("Github: "))
         .add_hyperlink(
             Hyperlink::new(por.info.github.clone(), HyperlinkType::External)
-                .add_run(
-                    Run::new()
-                        .add_text(por.info.github.clone())
-                        .color("0563C1")
-                        .underline("single"),
-                )
+                .add_run(hyperlink_run(por.info.github.clone()))
                 .add_run(Run::new().add_text("\t")),
         )
         .add_run(Run::new().add_text("Phone: "))
         .add_hyperlink(
-            Hyperlink::new(por.info.phone.clone(), HyperlinkType::External).add_run(
-                Run::new()
-                    .add_text(por.info.phone.clone())
-                    .color("0563C1")
-                    .underline("single"),
-            ),
+            Hyperlink::new(
+                &format!("tel:{}", por.info.phone.clone()),
+                HyperlinkType::External,
+            )
+            .add_run(hyperlink_run(por.info.phone.clone())),
         );
     // doc = &mut doc.add_paragraph(p);
     doc = doc.add_paragraph(p);
@@ -166,15 +148,17 @@ fn add_experiences(mut doc: Docx, por: &Portfolio) -> Docx {
         if let Some(location) = &exp.location {
             first_line.push_str(&format!(", {location}"));
         }
-        let mut run = Run::new()
-            .add_text(first_line)
-            .bold()
-            .underline("single")
-            .add_break(BreakType::TextWrapping);
         if let Some(title_link) = &exp.title_link {
-            run = run.color("0563C1").underline("single");
+            let run = hyperlink_run(first_line)
+                .bold()
+                .add_break(BreakType::TextWrapping);
             p = p.add_hyperlink(Hyperlink::new(title_link, HyperlinkType::External).add_run(run))
         } else {
+            let run = Run::new()
+                .add_text(first_line)
+                .bold()
+                .underline("single")
+                .add_break(BreakType::TextWrapping);
             p = p.add_run(run);
         }
 
@@ -222,6 +206,18 @@ fn add_experiences(mut doc: Docx, por: &Portfolio) -> Docx {
     .add_numbering(Numbering::new(8, 8))
 }
 
+fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
+    doc = doc.add_paragraph(
+        Paragraph::new()
+            .add_run(Run::new().add_text("Publications").size(HEADING_SIZE))
+            .insert_hr(),
+    );
+    for publication in &por.publications {
+        let p = Paragraph::new();
+    }
+    doc
+}
+
 pub fn generate_resumes(path: &Path) {
     let por = load_portfolio();
     let file = std::fs::File::create(path).unwrap();
@@ -252,5 +248,6 @@ pub fn generate_resumes(path: &Path) {
 
     doc = add_education(doc, &por);
     doc = add_experiences(doc, &por);
+    doc = add_publications(doc, &por);
     doc.build().pack(file).expect("Error creating docx");
 }
