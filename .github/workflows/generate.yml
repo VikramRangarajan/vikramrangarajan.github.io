@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -20,6 +20,7 @@ jobs:
       - name: Install LibreOffice Writer
         run: |
           export DEBIAN_FRONTEND=noninteractive
+          sudo add-apt-repository ppa:libreoffice/ppa -y
           sudo apt update -y
           sudo apt upgrade -y
           sudo apt install --no-install-recommends libreoffice-writer libreoffice-java-common -y
