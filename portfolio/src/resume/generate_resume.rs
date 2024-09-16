@@ -330,15 +330,18 @@ pub fn generate_resumes(path: &Path) {
 
 pub fn docx_to_pdf(path: &Path) {
     let path = canonicalize(path).unwrap();
-    let _ = Command::new("libreoffice")
+    let output = Command::new("libreoffice")
         .args([
             "--headless",
             "--convert-to",
-            "pdf",
+            "pdf:writer_pdf_Export",
             path.to_str().unwrap(),
             "--outdir",
             path.parent().unwrap().to_str().unwrap(),
         ])
         .output()
         .expect("Failed to convert docx to pdf");
+    if output.stderr.len() > 0 {
+        println!("{}", String::from_utf8(output.stderr).unwrap());
+    }
 }
