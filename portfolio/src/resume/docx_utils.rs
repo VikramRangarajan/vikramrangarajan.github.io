@@ -1,3 +1,4 @@
+use crate::resume::generate_resume::LINE_SPACING_TWIPS;
 use docx_rs::*;
 
 pub fn inches_to_twips<T: Into<f64>>(inches: T) -> i32 {
@@ -14,6 +15,12 @@ pub trait PTrait {
 
 impl PTrait for Paragraph {
     fn insert_hr(mut self) -> Paragraph {
+        self = self.line_spacing(
+            LineSpacing::new()
+                .line(LINE_SPACING_TWIPS)
+                .before(0)
+                .after(LINE_SPACING_TWIPS as u32 / 2u32),
+        );
         self.property = self.property.set_borders(
             ParagraphBorders::with_empty()
                 .set(ParagraphBorder::new(ParagraphBorderPosition::Bottom)),
