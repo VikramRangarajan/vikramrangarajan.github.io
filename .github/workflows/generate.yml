@@ -1,0 +1,38 @@
+name: website
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.9'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Install LibreOffice Writer
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update -y
+          sudo apt upgrade -y
+          sudo apt install --no-install-recommends libreoffice-writer libreoffice-java-common -y
+      - name: Install Carlito font
+        run: |
+          sudo apt install fonts-crosextra-carlito -y
+      - name: Generate Everything
+        run: |
+          cd portfolio
+          cargo run
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html
