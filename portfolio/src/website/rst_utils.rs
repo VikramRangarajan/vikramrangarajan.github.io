@@ -46,7 +46,7 @@ impl RstUtils for String {
             self.push_str("\n\n");
         } else {
             if link.is_some() {
-                self.push_str(format!("\n\t{indent_str}:link:{}", link.unwrap()).as_str());
+                self.push_str(format!("\n\t{indent_str}:link: {}", link.unwrap()).as_str());
 
                 if body.is_none() {
                     self.push_str("\n\n");

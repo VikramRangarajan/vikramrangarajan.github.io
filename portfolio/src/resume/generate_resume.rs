@@ -122,7 +122,7 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
         p = p
             .add_run(
                 Run::new()
-                    .add_text(&format!("GPA: {}", edu.gpa))
+                    .add_text(&format!("GPA: {:.1}", edu.gpa))
                     .add_break(BreakType::TextWrapping),
             )
             .add_run(Run::new().add_text("Relevant Coursework: ").italic());
@@ -278,6 +278,7 @@ pub fn add_awards(mut doc: Docx, por: &Portfolio) -> Docx {
 
 pub fn generate_resumes(path: &Path) {
     let por = load_portfolio();
+    let _ = std::fs::create_dir_all(path.parent().unwrap());
     let file = std::fs::File::create(path).unwrap();
     let p = Paragraph::new()
         .align(AlignmentType::Center)

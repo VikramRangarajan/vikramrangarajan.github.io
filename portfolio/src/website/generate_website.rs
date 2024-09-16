@@ -2,6 +2,7 @@ use crate::data::*;
 use crate::website::rst_utils::*;
 use std::fs::{canonicalize, write};
 use std::path::Path;
+use std::process::Command;
 
 pub fn add_education(mut s: String, p: &Portfolio) -> String {
     s.add_subtitle("Education".into());
@@ -35,7 +36,7 @@ pub fn add_education(mut s: String, p: &Portfolio) -> String {
         if let Some(minor) = &edu.minor {
             body_str.push_str(format!("Minor: {minor}\n").as_str())
         }
-        body_str.push_str(format!("GPA: {}", edu.gpa).as_str());
+        body_str.push_str(format!("GPA: {:.1}", edu.gpa).as_str());
         s.add_card(
             Some(format!("{} - {time}", edu.name)),
             Some(body_str),
@@ -190,7 +191,11 @@ pub fn generate_website() {
     create_index_file(&p);
     create_publications_file(&p);
     create_resumes_file();
-    let binding = canonicalize(Path::new(".")).unwrap();
-    let root = binding.parent().unwrap();
-    println!("{:?}", root);
+}
+
+pub fn generate_html() {
+    let _ = Command::new("make")
+        .args(["-C", "../docs", "html"])
+        .output()
+        .expect("Failed to generate html");
 }

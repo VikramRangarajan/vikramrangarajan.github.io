@@ -83,9 +83,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/
-
 # PyBuilder
 .pybuilder/
 target/
@@ -117,3 +114,7 @@ docs/source/_static
 # Added by cargo
 
 /target
+
+
+docs/source/*
+!/docs/source/conf.py
