@@ -11,6 +11,7 @@ pub fn hyperlink_run(s: String) -> Run {
 
 pub trait PTrait {
     fn insert_hr(self) -> Self;
+    fn add_tab_stop(self) -> Paragraph;
 }
 
 impl PTrait for Paragraph {
@@ -18,7 +19,7 @@ impl PTrait for Paragraph {
         self = self.line_spacing(
             LineSpacing::new()
                 .line(LINE_SPACING_TWIPS)
-                .before(0)
+                .before(LINE_SPACING_TWIPS as u32 / 2u32)
                 .after(LINE_SPACING_TWIPS as u32 / 2u32),
         );
         self.property = self.property.set_borders(
@@ -26,5 +27,13 @@ impl PTrait for Paragraph {
                 .set(ParagraphBorder::new(ParagraphBorderPosition::Bottom)),
         );
         self
+    }
+
+    fn add_tab_stop(self) -> Paragraph {
+        self.add_tab(Tab {
+            val: Some(TabValueType::Right),
+            leader: None,
+            pos: Some(inches_to_twips(7) as usize),
+        })
     }
 }

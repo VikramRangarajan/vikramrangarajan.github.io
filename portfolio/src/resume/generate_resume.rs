@@ -7,26 +7,21 @@ use crate::{
     hyperlink_run, inches_to_twips, PTrait,
 };
 
-pub const TITLE_SIZE: usize = 40;
-pub const HEADING_SIZE: usize = 28;
-pub const TEXT_SIZE: usize = 22;
-pub const LINE_SPACING: f32 = 1.2;
+pub const TITLE_SIZE: usize = 20 * 2;
+pub const HEADING_SIZE: usize = 14 * 2;
+pub const TEXT_SIZE: usize = 11 * 2;
+pub const LINE_SPACING: f32 = 1.15;
 pub const LINE_SPACING_TWIPS: i32 = ((TEXT_SIZE / 2) as f32 * LINE_SPACING * 20f32) as i32;
 
 pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
     let p = Paragraph::new()
-        .add_tab(Tab {
-            val: Some(TabValueType::Right),
-            leader: None,
-            pos: Some(inches_to_twips(7) as usize),
-        })
+        .add_tab_stop()
         .add_run(Run::new().add_text("Website: "))
         .add_hyperlink(
             Hyperlink::new(por.info.website.clone(), HyperlinkType::External)
-                .add_run(hyperlink_run(por.info.website.clone()))
-                .add_run(Run::new().add_text("\t")),
+                .add_run(hyperlink_run(por.info.website.clone())),
         )
-        .add_run(Run::new().add_text("Email: "))
+        .add_run(Run::new().add_text("\tEmail: "))
         .add_hyperlink(
             Hyperlink::new(
                 &format!("mailto:{}", por.info.email.clone()),
@@ -37,10 +32,9 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text("LinkedIn: "))
         .add_hyperlink(
             Hyperlink::new(por.info.linkedin.clone(), HyperlinkType::External)
-                .add_run(hyperlink_run(por.info.linkedin.clone()))
-                .add_run(Run::new().add_text("\t")),
+                .add_run(hyperlink_run(por.info.linkedin.clone())),
         )
-        .add_run(Run::new().add_text("Location: "))
+        .add_run(Run::new().add_text("\tLocation: "))
         .add_run(
             Run::new()
                 .add_text(por.info.location.clone())
@@ -49,10 +43,9 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text("Github: "))
         .add_hyperlink(
             Hyperlink::new(por.info.github.clone(), HyperlinkType::External)
-                .add_run(hyperlink_run(por.info.github.clone()))
-                .add_run(Run::new().add_text("\t")),
+                .add_run(hyperlink_run(por.info.github.clone())),
         )
-        .add_run(Run::new().add_text("Phone: "))
+        .add_run(Run::new().add_text("\tPhone: "))
         .add_hyperlink(
             Hyperlink::new(
                 &format!("tel:{}", por.info.phone.clone()),
@@ -155,11 +148,7 @@ fn add_experiences(mut doc: Docx, por: &Portfolio) -> Docx {
         if !exp.current {
             continue;
         }
-        let mut p = Paragraph::new().add_tab(Tab {
-            val: Some(TabValueType::Right),
-            leader: None,
-            pos: Some(inches_to_twips(7) as usize),
-        });
+        let mut p = Paragraph::new().add_tab_stop();
         let mut first_line = exp.company_name.clone();
 
         if let Some(location) = &exp.location {
@@ -213,7 +202,7 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
             .insert_hr(),
     );
     for publication in &por.publications {
-        let mut p = Paragraph::new().numbering(NumberingId::new(8), IndentLevel::new(0));
+        let mut p = Paragraph::new().numbering(NumberingId::new(1), IndentLevel::new(0));
         for (i, author) in publication.authors.iter().enumerate() {
             let mut r = if i < publication.authors.len() - 1 {
                 Run::new().add_text(format!("{author}, "))
@@ -267,22 +256,18 @@ pub fn add_awards(mut doc: Docx, por: &Portfolio) -> Docx {
             .insert_hr(),
     );
     for awd in &por.awards {
-        let mut p = Paragraph::new().add_tab(Tab {
-            val: Some(TabValueType::Right),
-            leader: None,
-            pos: Some(inches_to_twips(7) as usize),
-        });
+        let mut p = Paragraph::new().add_tab_stop();
         if let Some(link) = &awd.link {
-            p = p.add_hyperlink(
-                Hyperlink::new(link, HyperlinkType::External)
-                    .add_run(
+            p = p
+                .add_hyperlink(
+                    Hyperlink::new(link, HyperlinkType::External).add_run(
                         Run::new()
                             .add_text(awd.name.clone())
                             .color("0563C1")
                             .underline("single"),
-                    )
-                    .add_run(Run::new().add_text(&format!("\t{}", awd.date.str_date()))),
-            );
+                    ),
+                )
+                .add_run(Run::new().add_text(&format!("\t{}", awd.date.str_date())));
         } else {
             p = p.add_run(Run::new().add_text(&format!("{}\t{}", awd.name, awd.date.str_date())));
         }
@@ -297,7 +282,6 @@ pub fn generate_resumes(path: &Path) {
     let p = Paragraph::new()
         .align(AlignmentType::Center)
         .add_run(Run::new().add_text(por.info.name.clone()).size(TITLE_SIZE));
-    // p = p.insert_hr();
     let mut doc = Docx::new()
         .page_size(inches_to_twips(8.5) as u32, inches_to_twips(11) as u32)
         .page_margin(PageMargin {
