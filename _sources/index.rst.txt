@@ -9,7 +9,7 @@ Education
 
 	Degree: Bachelor of Science
 
-	Major: Computer Science – Machine Learning Track
+	Major: Computer Science - Machine Learning Track
 
 	Minor: Statistics
 
@@ -59,7 +59,7 @@ Experience & Projects
 Technical Skills
 ================
 
-Programming languages
+Programming Languages
 
 .. card-carousel:: 2
 
