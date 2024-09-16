@@ -1,5 +1,6 @@
 use docx_rs::*;
-use std::path::Path;
+use std::process::Command;
+use std::{fs::canonicalize, path::Path};
 
 use crate::{
     data::{load_portfolio, EndingDate, Portfolio},
@@ -17,7 +18,7 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_tab(Tab {
             val: Some(TabValueType::Right),
             leader: None,
-            pos: Some(inches_to_twips(7.5) as usize),
+            pos: Some(inches_to_twips(7) as usize),
         })
         .add_run(Run::new().add_text("Website: "))
         .add_hyperlink(
@@ -88,7 +89,7 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
             .add_tab(Tab {
                 val: Some(TabValueType::Right),
                 leader: None,
-                pos: Some(inches_to_twips(7.5) as usize),
+                pos: Some(inches_to_twips(7) as usize),
             })
             .add_run(Run::new().bold().add_text(body_str))
             .add_run(
@@ -157,7 +158,7 @@ fn add_experiences(mut doc: Docx, por: &Portfolio) -> Docx {
         let mut p = Paragraph::new().add_tab(Tab {
             val: Some(TabValueType::Right),
             leader: None,
-            pos: Some(inches_to_twips(7.5) as usize),
+            pos: Some(inches_to_twips(7) as usize),
         });
         let mut first_line = exp.company_name.clone();
 
@@ -269,7 +270,7 @@ pub fn add_awards(mut doc: Docx, por: &Portfolio) -> Docx {
         let mut p = Paragraph::new().add_tab(Tab {
             val: Some(TabValueType::Right),
             leader: None,
-            pos: Some(inches_to_twips(7.5) as usize),
+            pos: Some(inches_to_twips(7) as usize),
         });
         if let Some(link) = &awd.link {
             p = p.add_hyperlink(
@@ -310,7 +311,7 @@ pub fn generate_resumes(path: &Path) {
         })
         .default_line_spacing(LineSpacing::new().line(LINE_SPACING_TWIPS))
         .default_size(TEXT_SIZE)
-        .default_fonts(RunFonts::new().ascii("Calibri"))
+        .default_fonts(RunFonts::new().ascii("Carlito"))
         .add_abstract_numbering(
             AbstractNumbering::new(8).add_level(
                 Level::new(
@@ -339,4 +340,20 @@ pub fn generate_resumes(path: &Path) {
     doc = add_skills(doc, &por);
     doc = add_awards(doc, &por);
     doc.build().pack(file).expect("Error creating docx");
+    docx_to_pdf(path);
+}
+
+pub fn docx_to_pdf(path: &Path) {
+    let path = canonicalize(path).unwrap();
+    let _ = Command::new("libreoffice")
+        .args([
+            "--headless",
+            "--convert-to",
+            "pdf",
+            path.to_str().unwrap(),
+            "--outdir",
+            path.parent().unwrap().to_str().unwrap(),
+        ])
+        .output()
+        .expect("Failed to convert docx to pdf");
 }
