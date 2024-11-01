@@ -109,12 +109,17 @@ env.bak/
 venv.bak/
 
 .vscode
-docs/source/_static
 
 # Added by cargo
 
 /target
 
 
-docs/source/*
+docs/source/*.rst
+*.docx
+*.pdf
+*.png
+
 !/docs/source/conf.py
+!/docs/source/index.rst
+!/docs/source/_static/pfp.png

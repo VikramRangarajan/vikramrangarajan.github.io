@@ -8,10 +8,7 @@ copyright = "2024, Vikram Rangarajan"
 author = "Vikram Rangarajan"
 
 
-extensions = [
-    "sphinx_design",
-    "sphinx_simplepdf",
-]
+extensions = ["sphinx_design"]
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -27,14 +24,14 @@ linkedin = info["linkedin"]
 github = info["github"]
 
 html_theme = "pydata_sphinx_theme"
-html_sidebars = {
-    "**": []
-}
+html_sidebars = {"**": []}
 html_theme_options = {
+    "navigation_with_keys": False,
     "navbar_end": ["theme-switcher", "navbar-icon-links"],
     "github_url": github,
+    "navbar_start": [],
     "logo": {
-        "text": "Portfolio",
+        "text": "Introduction",
     },
     "icon_links": [
         {

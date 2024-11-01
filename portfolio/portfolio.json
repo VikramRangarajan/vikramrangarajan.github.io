@@ -86,10 +86,10 @@
     ],
     "publications": [
         {
-            "title": "Deep Learning Detection of Seven Plant-Parasitic Nematode Genera Associated with Turfgrass",
+            "title": "Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms ",
             "authors": [
-                "Fereshteh Shahoveisi",
                 "Vikram Rangarajan",
+                "Fereshteh Shahoveisi",
                 "Benjamin Waldo",
                 "Sadegh Jafari"
             ],
@@ -114,6 +114,34 @@
     "experience": [
         {
             "title": "Undergraduate Research Assistant",
+            "title_link": "https://www.umiacs.umd.edu/",
+            "employment_type": "part-time",
+            "company_name": "UMIACS",
+            "location": "College Park, MD, 20742",
+            "location_type": "Remote",
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 10,
+                        "year": 2024
+                    }
+                },
+                "end": {
+                    "Current": {
+                        "expected": null
+                    }
+                }
+            },
+            "current": true,
+            "description": [
+                "Creating a neural video codec to surpass state of the art compression algorithms for image and video data",
+                "Models are fit to decode the original video from input pixel coordinates efficiently",
+                "Using methods such as model quantization and meta learning to achieve ideal reconstruction quality with high compression, high encoding, and high decoding speeds"
+            ]
+        },
+        {
+            "title": "Undergraduate Research Assistant",
             "title_link": "https://sites.google.com/view/umdturfgrasspathology/home",
             "employment_type": "part-time",
             "company_name": "Shahoveisi Lab",
@@ -128,14 +156,18 @@
                     }
                 },
                 "end": {
-                    "Current": {
-                        "expected": null
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 11,
+                            "year": 2024
+                        }
                     }
                 }
             },
             "current": true,
             "description": [
-                "Assisted in creating manuscripts for machine learning research projects related to identifying and managing turfgrass related diseases",
+                "Created manuscripts for machine learning research projects related to identifying and managing turfgrass related diseases",
                 "Used methods such as transfer learning and gradual unfreezing to train highly accurate nematode image classifiers",
                 "Performed automatic hyperparameter optimization using Ray Tune to train scikit-learn and PyTorch models to achieve highest metrics",
                 "Performed parallelized automatic image dataset preprocessing using OpenCV and NumPy"
@@ -252,6 +284,8 @@
                 "Java",
                 "OCaml",
                 "R",
+                "Racket",
+                "Assembly (x86, MIPS)",
                 "SAS"
             ]
         },
@@ -263,6 +297,9 @@
                 "NumPy",
                 "scikit-learn",
                 "OpenCV",
+                "HPC (SLURM)",
+                "MPI",
+                "OpenMP",
                 "Git",
                 "Linux",
                 "Docker",

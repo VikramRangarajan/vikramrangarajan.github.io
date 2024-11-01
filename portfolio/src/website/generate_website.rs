@@ -1,6 +1,7 @@
 use crate::data::*;
 use crate::website::rst_utils::*;
 use std::fs::{canonicalize, write};
+use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
@@ -126,7 +127,7 @@ pub fn add_awards(mut s: String, p: &Portfolio) -> String {
 
 pub fn create_index_file(p: &Portfolio) {
     let mut s = String::with_capacity(10000);
-    s.add_title("Vikram Rangarajan - Portfolio".into());
+    s.add_title("Portfolio".into());
 
     s = add_education(s, p);
 
@@ -136,12 +137,9 @@ pub fn create_index_file(p: &Portfolio) {
 
     s = add_awards(s, p);
 
-    s.push_str("\n.. toctree::\n\t:hidden:\n\n\tpublications");
-    s.push_str("\n.. toctree::\n\t:hidden:\n\n\tresumes");
-
     let binding = canonicalize(Path::new(".")).unwrap();
     let root = binding.parent().unwrap();
-    let index_filepath = root.join("docs").join("source").join("index.rst");
+    let index_filepath = root.join("docs").join("source").join("portfolio.rst");
     write(index_filepath, s).expect("Error Writing File");
 }
 
@@ -179,7 +177,15 @@ pub fn create_resumes_file() {
     s.add_title("Resume Downloads".into())
         .push_str("\n:download:`PDF <_static/resume.pdf>`\n");
     s.push_str("\n:download:`DOCX <_static/resume.docx>`\n\n");
-    s.push_str(".. pdf-include:: _static/resume.pdf#view=Fit");
+
+    // Add the pdf previewer as an embedded iframe
+    s.push_str(".. raw:: html\n\n\t<iframe id=\"pdf-viewer\" ");
+    s.push_str("src=\"_static/resume.pdf\" ");
+    s.push_str("type=\"application/pdf\" ");
+    s.push_str(
+        "style=\"height: 60vh; width: 100%\" allowfullscreen scrolling=\"auto\"></iframe>\n",
+    );
+
     let binding = canonicalize(Path::new(".")).unwrap();
     let root = binding.parent().unwrap();
     let index_filepath = root.join("docs").join("source").join("resumes.rst");
@@ -194,8 +200,10 @@ pub fn generate_website() {
 }
 
 pub fn generate_html() {
-    let _ = Command::new("make")
+    let output = Command::new("make")
         .args(["-C", "../docs", "html"])
         .output()
         .expect("Failed to generate html");
+    let _ = std::io::stdout().write_all(&output.stdout);
+    let _ = std::io::stderr().write_all(&output.stderr);
 }
