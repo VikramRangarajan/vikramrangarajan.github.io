@@ -24,7 +24,7 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text("\tEmail: "))
         .add_hyperlink(
             Hyperlink::new(
-                &format!("mailto:{}", por.info.email.clone()),
+                format!("mailto:{}", por.info.email.clone()),
                 HyperlinkType::External,
             )
             .add_run(hyperlink_run(por.info.email.clone()).add_break(BreakType::TextWrapping)),
@@ -48,7 +48,7 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text("\tPhone: "))
         .add_hyperlink(
             Hyperlink::new(
-                &format!("tel:{}", por.info.phone.clone()),
+                format!("tel:{}", por.info.phone.clone()),
                 HyperlinkType::External,
             )
             .add_run(hyperlink_run(por.info.phone.clone())),
@@ -109,20 +109,20 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
             )
             .add_run(
                 Run::new()
-                    .add_text(&format!("{}, {}", edu.name, edu.location))
+                    .add_text(format!("{}, {}", edu.name, edu.location))
                     .add_break(BreakType::TextWrapping),
             );
         if let Some(minor) = &edu.minor {
             p = p.add_run(
                 Run::new()
-                    .add_text(&format!("Minor: {}", minor))
+                    .add_text(format!("Minor: {}", minor))
                     .add_break(BreakType::TextWrapping),
             );
         }
         p = p
             .add_run(
                 Run::new()
-                    .add_text(&format!("GPA: {:.1}", edu.gpa))
+                    .add_text(format!("GPA: {:.1}", edu.gpa))
                     .add_break(BreakType::TextWrapping),
             )
             .add_run(Run::new().add_text("Relevant Coursework: ").italic());
@@ -217,12 +217,42 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
             p = p.add_run(r);
         }
         let mut pub_str_r = Run::new().add_text(publication.title.clone());
-        if !publication.status.to_lowercase().contains("published") {
-            pub_str_r = pub_str_r.add_break(BreakType::TextWrapping);
-            p = p.add_run(pub_str_r);
-            p = p.add_run(Run::new().add_text(publication.status.clone()));
+        if publication.status.to_lowercase().contains("published") {
+            if let Some(link) = &publication.link {
+                p = p
+                    .add_hyperlink(
+                        Hyperlink::new(link, HyperlinkType::External)
+                            .add_run(hyperlink_run(publication.title.clone())),
+                    )
+                    .add_run(Run::new().add_break(BreakType::TextWrapping));
+            } else {
+                p = p.add_run(
+                    Run::new()
+                        .add_text(publication.title.clone())
+                        .add_break(BreakType::TextWrapping),
+                );
+            }
+            if let Some(journal) = &publication.journal {
+                p = p.add_run(
+                    Run::new()
+                        .add_text(journal)
+                        .add_break(BreakType::TextWrapping),
+                );
+            }
+            if let Some(date) = &publication.date {
+                p = p.add_run(Run::new().add_text(date.str_date()));
+            }
         } else {
-            p = p.add_run(pub_str_r);
+            pub_str_r = pub_str_r.add_break(BreakType::TextWrapping);
+
+            if let Some(link) = &publication.link {
+                p = p.add_hyperlink(
+                    Hyperlink::new(link, HyperlinkType::External).add_run(pub_str_r),
+                );
+            } else {
+                p = p.add_run(pub_str_r);
+            }
+            p = p.add_run(Run::new().add_text(publication.status.clone()));
         }
         doc = doc.add_paragraph(p);
     }
@@ -238,7 +268,7 @@ pub fn add_skills(mut doc: Docx, por: &Portfolio) -> Docx {
     for skills in &por.skills {
         let mut p = Paragraph::new().numbering(NumberingId::new(8), IndentLevel::new(0));
         let group = skills.group_name.clone();
-        p = p.add_run(Run::new().add_text(&format!("{group}: ")).bold());
+        p = p.add_run(Run::new().add_text(format!("{group}: ")).bold());
         p = p.add_run(Run::new().add_text(skills.skills.join(", ")));
         doc = doc.add_paragraph(p);
     }
@@ -267,9 +297,9 @@ pub fn add_awards(mut doc: Docx, por: &Portfolio) -> Docx {
                             .underline("single"),
                     ),
                 )
-                .add_run(Run::new().add_text(&format!("\t{}", awd.date.str_date())));
+                .add_run(Run::new().add_text(format!("\t{}", awd.date.str_date())));
         } else {
-            p = p.add_run(Run::new().add_text(&format!("{}\t{}", awd.name, awd.date.str_date())));
+            p = p.add_run(Run::new().add_text(format!("{}\t{}", awd.name, awd.date.str_date())));
         }
         doc = doc.add_paragraph(p);
     }
@@ -341,7 +371,7 @@ pub fn docx_to_pdf(path: &Path) {
         ])
         .output()
         .expect("Failed to convert docx to pdf");
-    if output.stderr.len() > 0 {
+    if !output.stderr.is_empty() {
         println!("{}", String::from_utf8(output.stderr).unwrap());
     }
 }

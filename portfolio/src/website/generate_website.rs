@@ -37,6 +37,9 @@ pub fn add_education(mut s: String, p: &Portfolio) -> String {
         if let Some(minor) = &edu.minor {
             body_str.push_str(format!("Minor: {minor}\n").as_str())
         }
+        if let Some(courses) = &edu.coursework {
+            body_str.push_str(format!("Relevant Coursework: {}\n", courses.join(", ")).as_str());
+        }
         body_str.push_str(format!("GPA: {:.1}", edu.gpa).as_str());
         s.add_card(
             Some(format!("{} - {time}", edu.name)),
@@ -151,7 +154,7 @@ pub fn create_publications_file(p: &Portfolio) {
         let mut authors_str = publication.authors.join(", ");
         authors_str = authors_str.replace(&p.info.name, format!("**{}**", p.info.name).as_str());
         if let Some(journal) = &publication.journal {
-            authors_str.push_str(format!("\nIn {}", journal).as_str());
+            authors_str.push_str(format!("\nIn {}\n", journal).as_str());
         }
         if !publication.status.to_lowercase().contains("published") {
             authors_str.push_str(format!("\n{}", publication.status).as_str());
