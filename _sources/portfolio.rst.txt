@@ -13,6 +13,8 @@ Education
 
 	Minor: Statistics
 
+	Relevant Coursework: Artificial Intelligence, Machine Learning, Data Science, Parallel Computing, Calculus 1, 2 & 3, Statistics, Linear Algebra, Compilers, Computer Systems, Algorithms, Organization of Programming Languages, Object-Oriented Programming 1 & 2, Discrete Math
+
 	GPA: 4.0
 
 Experience & Projects

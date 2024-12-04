@@ -2,11 +2,11 @@
 Publications
 ============
 
-.. card:: Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms 
+.. card:: Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms
 
 	**Vikram Rangarajan**, Fereshteh Shahoveisi, Benjamin Waldo, Sadegh Jafari
 
-	In Preparation, 2024
+	Submitted, December 2024
 
 .. card:: Enhancing Precision Weed Prediction in Golf Courses Using Machine Learning Algorithms
 
