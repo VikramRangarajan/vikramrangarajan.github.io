@@ -56,7 +56,7 @@ impl RstUtils for String {
             if body.is_some() {
                 let body2 = body
                     .unwrap()
-                    .replace("\n", format!("{}\n\n\t", indent_str).as_str());
+                    .replace("\n", format!("{indent_str}\n\n\t").as_str());
                 self.push_str(format!("\n\n\t{indent_str}{body2}\n\n").as_str())
             }
         }

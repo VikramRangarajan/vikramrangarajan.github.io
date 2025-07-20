@@ -11,26 +11,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11.9'
+      - uses: astral-sh/setup-uv@v6
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-      - name: Install LibreOffice Writer
-        run: |
-          export DEBIAN_FRONTEND=noninteractive
-          sudo add-apt-repository ppa:libreoffice/ppa -y
-          sudo apt update -y
-          sudo apt upgrade -y
-          sudo apt install --no-install-recommends libreoffice-writer libreoffice-java-common -y
+          uv venv -p 3.13
+          . .venv/bin/activate
+          uv pip install -r requirements.txt
       - name: Install Carlito font
         run: |
-          sudo apt install fonts-crosextra-carlito -y
+          mkdir -p ~/.fonts
+          wget -qO- https://github.com/google/fonts/raw/main/ofl/carlito/Carlito-Regular.ttf -O ~/.fonts/Carlito.ttf
+          fc-cache -f
       - name: Generate Everything
         run: |
           cd portfolio
           cargo run
+          cd ..
+      - uses: jmservera/libreoffice-action@v0.2
+        with:
+          command: libreoffice --headless --convert-to pdf:writer_pdf_Export docs/source/_static/resume.docx --outdir docs/source/_static
+      - name: Build site
+        run: |
+          . .venv/bin/activate
+          make -C docs html
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:

@@ -64,13 +64,13 @@ pub struct Duration {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Education {
-    pub education_type: String,
     pub name: String,
     pub location: String,
     pub degree: Option<String>,
+    pub major_name: Option<String>,
     pub major: Option<String>,
     pub minor: Option<String>,
-    pub gpa: f32,
+    pub gpa: Option<String>,
     pub coursework: Option<Vec<String>>,
     pub duration: Duration,
     pub current: bool,

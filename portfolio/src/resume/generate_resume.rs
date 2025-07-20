@@ -1,6 +1,5 @@
 use docx_rs::*;
-use std::process::Command;
-use std::{fs::canonicalize, path::Path};
+use std::path::Path;
 
 use crate::{
     data::{load_portfolio, EndingDate, Portfolio},
@@ -21,39 +20,24 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
             Hyperlink::new(por.info.website.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.website.clone())),
         )
-        .add_run(Run::new().add_text("\tEmail: "))
+        .add_run(Run::new().add_text("\tGithub: "))
         .add_hyperlink(
-            Hyperlink::new(
-                format!("mailto:{}", por.info.email.clone()),
-                HyperlinkType::External,
-            )
-            .add_run(hyperlink_run(por.info.email.clone()).add_break(BreakType::TextWrapping)),
+            Hyperlink::new(por.info.github.clone(), HyperlinkType::External)
+                .add_run(hyperlink_run(por.info.github.clone()).add_break(BreakType::TextWrapping)),
         )
         .add_run(Run::new().add_text("LinkedIn: "))
         .add_hyperlink(
             Hyperlink::new(por.info.linkedin.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.linkedin.clone())),
         )
-        .add_run(Run::new().add_text("\tLocation: "))
-        .add_run(
-            Run::new()
-                .add_text(por.info.location.clone())
-                .add_break(BreakType::TextWrapping),
-        )
-        .add_run(Run::new().add_text("Github: "))
-        .add_hyperlink(
-            Hyperlink::new(por.info.github.clone(), HyperlinkType::External)
-                .add_run(hyperlink_run(por.info.github.clone())),
-        )
-        .add_run(Run::new().add_text("\tPhone: "))
+        .add_run(Run::new().add_text("\tEmail: "))
         .add_hyperlink(
             Hyperlink::new(
-                format!("tel:{}", por.info.phone.clone()),
+                format!("mailto:{}", por.info.email.clone()),
                 HyperlinkType::External,
             )
-            .add_run(hyperlink_run(por.info.phone.clone())),
+            .add_run(hyperlink_run(por.info.email.clone())),
         );
-    // doc = &mut doc.add_paragraph(p);
     doc = doc.add_paragraph(p);
     doc
 }
@@ -108,26 +92,32 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
                     .add_break(BreakType::TextWrapping),
             )
             .add_run(
-                Run::new()
-                    .add_text(format!("{}, {}", edu.name, edu.location))
-                    .add_break(BreakType::TextWrapping),
+                Run::new().add_text(format!("{}, {}", edu.name, edu.location)), // .add_break(BreakType::TextWrapping),
             );
         if let Some(minor) = &edu.minor {
             p = p.add_run(
                 Run::new()
-                    .add_text(format!("Minor: {}", minor))
-                    .add_break(BreakType::TextWrapping),
+                    .add_break(BreakType::TextWrapping)
+                    .add_text(format!("Minor: {minor}")),
             );
         }
-        p = p
-            .add_run(
+        if let Some(gpa) = &edu.gpa {
+            p = p.add_run(
                 Run::new()
-                    .add_text(format!("GPA: {:.1}", edu.gpa))
-                    .add_break(BreakType::TextWrapping),
-            )
-            .add_run(Run::new().add_text("Relevant Coursework: ").italic());
+                    .add_break(BreakType::TextWrapping)
+                    .add_text(format!("GPA: {gpa}")),
+            );
+        }
         if let Some(coursework) = &edu.coursework {
-            p = p.add_run(Run::new().add_text(coursework.join(", ")));
+            if !coursework.is_empty() {
+                p = p.add_run(
+                    Run::new()
+                        .add_break(BreakType::TextWrapping)
+                        .add_text("Relevant Coursework: ")
+                        .italic(),
+                );
+                p = p.add_run(Run::new().add_text(coursework.join(", ")));
+            }
         }
         doc = doc.add_paragraph(p);
     }
@@ -355,23 +345,4 @@ pub fn generate_resumes(path: &Path) {
     doc = add_skills(doc, &por);
     doc = add_awards(doc, &por);
     doc.build().pack(file).expect("Error creating docx");
-    docx_to_pdf(path);
-}
-
-pub fn docx_to_pdf(path: &Path) {
-    let path = canonicalize(path).unwrap();
-    let output = Command::new("libreoffice")
-        .args([
-            "--headless",
-            "--convert-to",
-            "pdf:writer_pdf_Export",
-            path.to_str().unwrap(),
-            "--outdir",
-            path.parent().unwrap().to_str().unwrap(),
-        ])
-        .output()
-        .expect("Failed to convert docx to pdf");
-    if !output.stderr.is_empty() {
-        println!("{}", String::from_utf8(output.stderr).unwrap());
-    }
 }

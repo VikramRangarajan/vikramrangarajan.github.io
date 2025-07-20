@@ -3,20 +3,47 @@
         "name": "Vikram Rangarajan",
         "email": "vikram.rangaraja@gmail.com",
         "phone": "609-608-6762",
-        "linkedin": "https://linkedin.com/in/vikram-rangarajan/",
-        "github": "https://github.com/VikramRangarajan/",
+        "linkedin": "www.linkedin.com/in/vikram-rangarajan/",
+        "github": "www.github.com/VikramRangarajan/",
         "location": "Plainsboro, NJ, 08536",
-        "website": "https://vikramrangarajan.github.io/"
+        "website": "www.vikramrangarajan.github.io/"
     },
     "education": [
         {
-            "education_type": "college",
+            "name": "Purdue University",
+            "location": "West Lafayette, IN, 47907",
+            "degree": "Ph.D.",
+            "major_name": "Focus:",
+            "major": "Computer Science, AI / ML",
+            "duration": {
+                "start": {
+                    "NumDate": {
+                        "day": null,
+                        "month": 9,
+                        "year": 2025
+                    }
+                },
+                "end": {
+                    "Current": {
+                        "expected": {
+                            "NumDate": {
+                                "day": null,
+                                "month": 5,
+                                "year": 2030
+                            }
+                        }
+                    }
+                }
+            },
+            "current": true
+        },
+        {
             "name": "University of Maryland",
             "location": "College Park, MD, 20742",
-            "degree": "Bachelor of Science",
+            "degree": "B.S.",
             "major": "Computer Science - Machine Learning Track",
             "minor": "Statistics",
-            "gpa": 4.0,
+            "gpa": "4.0, Summa Cum Laude",
             "coursework": [
                 "Artificial Intelligence",
                 "Machine Learning",
@@ -43,13 +70,11 @@
                     }
                 },
                 "end": {
-                    "Current": {
-                        "expected": {
-                            "NumDate": {
-                                "day": null,
-                                "month": 5,
-                                "year": 2025
-                            }
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 5,
+                            "year": 2025
                         }
                     }
                 }
@@ -57,13 +82,12 @@
             "current": true
         },
         {
-            "education_type": "school",
             "name": "West Windsor-Plainsboro High School South",
             "location": "Princeton Junction, NJ, 08550",
             "degree": "High School Diploma",
             "major": null,
             "minor": null,
-            "gpa": 4.7,
+            "gpa": "4.7 Weighted, 4.0 Unweighted",
             "coursework": null,
             "duration": {
                 "start": {
@@ -88,6 +112,17 @@
     ],
     "publications": [
         {
+            "title": "SIEDD (Shared Implicit-Encoder with Separate Decoders)",
+            "authors": [
+                "Vikram Rangarajan",
+                "Shishira Maiya",
+                "Max Ehrlich",
+                "Abhinav Shrivastava"
+            ],
+            "status": "In Review, May 2025",
+            "link": "https://arxiv.org/abs/2506.23382"
+        },
+        {
             "title": "Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms",
             "authors": [
                 "Vikram Rangarajan",
@@ -95,21 +130,9 @@
                 "Benjamin Waldo",
                 "Sadegh Jafari"
             ],
-            "status": "Submitted, December 2024",
+            "status": "In Review, December 2024",
             "journal": null,
-            "link": null,
-            "date": null
-        },
-        {
-            "title": "Enhancing Precision Weed Prediction in Golf Courses Using Machine Learning Algorithms",
-            "authors": [
-                "Fereshteh Shahoveisi",
-                "Vikram Rangarajan",
-                "et al."
-            ],
-            "status": "In Preparation, 2024",
-            "journal": null,
-            "link": null,
+            "link": "https://huggingface.co/spaces/VikramR/NematodeClassifier",
             "date": null
         }
     ],
@@ -130,8 +153,12 @@
                     }
                 },
                 "end": {
-                    "Current": {
-                        "expected": null
+                    "End": {
+                        "NumDate": {
+                            "day": null,
+                            "month": 6,
+                            "year": 2025
+                        }
                     }
                 }
             },
@@ -315,6 +342,22 @@
     ],
     "awards": [
         {
+            "name": "UMD CMNS Latin Honors - Summa Cum Laude",
+            "date": {
+                "StringDate": "Spring 25"
+            },
+            "current": true,
+            "link": null
+        },
+        {
+            "name": "UMD Computer Science Semester Academic Honors",
+            "date": {
+                "StringDate": "Fall 22 - Spring 25"
+            },
+            "current": true,
+            "link": null
+        },
+        {
             "name": "Astronomer Certification for Apache Airflow Fundamentals",
             "date": {
                 "NumDate": {
@@ -325,14 +368,6 @@
             },
             "current": true,
             "link": "https://www.credly.com/badges/82aab031-8123-40de-b310-0c73394b5329/public_url"
-        },
-        {
-            "name": "UMD Computer Science Semester Academic Honors",
-            "date": {
-                "StringDate": "Fall 22 - Spring 24"
-            },
-            "current": true,
-            "link": null
         }
     ]
 }

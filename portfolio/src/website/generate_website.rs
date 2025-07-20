@@ -1,9 +1,7 @@
 use crate::data::*;
 use crate::website::rst_utils::*;
 use std::fs::{canonicalize, write};
-use std::io::Write;
 use std::path::Path;
-use std::process::Command;
 
 pub fn add_education(mut s: String, p: &Portfolio) -> String {
     s.add_subtitle("Education".into());
@@ -32,15 +30,25 @@ pub fn add_education(mut s: String, p: &Portfolio) -> String {
             body_str.push_str(format!("Degree: {degree}\n").as_str())
         }
         if let Some(major) = &edu.major {
-            body_str.push_str(format!("Major: {major}\n").as_str())
+            let major_name = if let Some(major_name) = &edu.major_name {
+                major_name
+            } else {
+                "Major:"
+            };
+            body_str.push_str(format!("{major_name} {major}\n").as_str())
         }
         if let Some(minor) = &edu.minor {
             body_str.push_str(format!("Minor: {minor}\n").as_str())
         }
         if let Some(courses) = &edu.coursework {
-            body_str.push_str(format!("Relevant Coursework: {}\n", courses.join(", ")).as_str());
+            if !courses.is_empty() {
+                body_str
+                    .push_str(format!("Relevant Coursework: {}\n", courses.join(", ")).as_str());
+            }
         }
-        body_str.push_str(format!("GPA: {:.1}", edu.gpa).as_str());
+        if let Some(gpa) = &edu.gpa {
+            body_str.push_str(format!("GPA: {gpa}").as_str());
+        }
         s.add_card(
             Some(format!("{} - {time}", edu.name)),
             Some(body_str),
@@ -154,7 +162,7 @@ pub fn create_publications_file(p: &Portfolio) {
         let mut authors_str = publication.authors.join(", ");
         authors_str = authors_str.replace(&p.info.name, format!("**{}**", p.info.name).as_str());
         if let Some(journal) = &publication.journal {
-            authors_str.push_str(format!("\nIn {}\n", journal).as_str());
+            authors_str.push_str(format!("\nIn {journal}\n").as_str());
         }
         if !publication.status.to_lowercase().contains("published") {
             authors_str.push_str(format!("\n{}", publication.status).as_str());
@@ -200,13 +208,4 @@ pub fn generate_website() {
     create_index_file(&p);
     create_publications_file(&p);
     create_resumes_file();
-}
-
-pub fn generate_html() {
-    let output = Command::new("make")
-        .args(["-C", "../docs", "html"])
-        .output()
-        .expect("Failed to generate html");
-    let _ = std::io::stdout().write_all(&output.stdout);
-    let _ = std::io::stderr().write_all(&output.stderr);
 }
