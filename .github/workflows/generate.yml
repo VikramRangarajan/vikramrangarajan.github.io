@@ -26,7 +26,10 @@ jobs:
         with:
           command: |
             mkdir -p ~/.fonts
-            wget -qO- https://github.com/google/fonts/raw/main/ofl/carlito/Carlito-Regular.ttf -O ~/.fonts/Carlito.ttf
+            wget -qO- https://github.com/google/fonts/raw/main/ofl/carlito/Carlito-Regular.ttf -O ~/.fonts/Carlito-Regular.ttf
+            wget -qO- https://github.com/google/fonts/raw/main/ofl/carlito/Carlito-Bold.ttf -O ~/.fonts/Carlito-Bold.ttf
+            wget -qO- https://github.com/google/fonts/raw/main/ofl/carlito/Carlito-Italic.ttf -O ~/.fonts/Carlito-Italic.ttf
+            wget -qO- https://github.com/google/fonts/raw/main/ofl/carlito/Carlito-BoldItalic.ttf -O ~/.fonts/Carlito-BoldItalic.ttf
             fc-cache -f
             libreoffice --headless --convert-to pdf:writer_pdf_Export docs/source/_static/resume.docx --outdir docs/source/_static
       - name: Build site

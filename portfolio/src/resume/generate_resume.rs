@@ -6,7 +6,7 @@ use crate::{
     hyperlink_run, inches_to_twips, PTrait,
 };
 
-pub const TITLE_SIZE: usize = 20 * 2;
+pub const TITLE_SIZE: usize = 24 * 2;
 pub const HEADING_SIZE: usize = 14 * 2;
 pub const TEXT_SIZE: usize = 11 * 2;
 pub const LINE_SPACING: f32 = 1.15;
@@ -14,13 +14,14 @@ pub const LINE_SPACING_TWIPS: i32 = ((TEXT_SIZE / 2) as f32 * LINE_SPACING * 20f
 
 pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
     let p = Paragraph::new()
+        .add_run(Run::new().add_break(BreakType::TextWrapping))
         .add_tab_stop()
         .add_run(Run::new().add_text("Website: "))
         .add_hyperlink(
             Hyperlink::new(por.info.website.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.website.clone())),
         )
-        .add_run(Run::new().add_text("\tGithub: "))
+        .add_run(Run::new().add_text("\tGitHub: "))
         .add_hyperlink(
             Hyperlink::new(por.info.github.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.github.clone()).add_break(BreakType::TextWrapping)),
