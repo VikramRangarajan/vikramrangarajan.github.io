@@ -2,15 +2,17 @@
 Publications
 ============
 
+.. card:: SIEDD (Shared Implicit-Encoder with Separate Decoders)
+	:link: https://arxiv.org/abs/2506.23382
+
+	**Vikram Rangarajan**, Shishira Maiya, Max Ehrlich, Abhinav Shrivastava
+
+	In Review, May 2025
+
 .. card:: Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms
+	:link: https://huggingface.co/spaces/VikramR/NematodeClassifier
 
 	**Vikram Rangarajan**, Fereshteh Shahoveisi, Benjamin Waldo, Sadegh Jafari
 
-	Submitted, December 2024
-
-.. card:: Enhancing Precision Weed Prediction in Golf Courses Using Machine Learning Algorithms
-
-	Fereshteh Shahoveisi, **Vikram Rangarajan**, et al.
-
-	In Preparation, 2024
+	In Review, December 2024
 

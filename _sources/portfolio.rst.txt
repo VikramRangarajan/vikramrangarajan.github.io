@@ -5,9 +5,17 @@ Portfolio
 Education
 =========
 
-.. card:: University of Maryland - 09/22 to Present, Expected 05/25
+.. card:: Purdue University - 09/25 to Present, Expected 05/30
 
-	Degree: Bachelor of Science
+	Degree: Ph.D.
+
+	Focus: Computer Science, AI / ML
+
+	
+
+.. card:: University of Maryland - 09/22 to 05/25
+
+	Degree: B.S.
 
 	Major: Computer Science - Machine Learning Track
 
@@ -15,12 +23,12 @@ Education
 
 	Relevant Coursework: Artificial Intelligence, Machine Learning, Computer Vision, Natural Language Processing, Data Science, Parallel Computing, Calculus 1, 2 & 3, Statistics, Linear Algebra, Compilers, Computer Systems, Algorithms, Organization of Programming Languages, Object-Oriented Programming 1 & 2, Discrete Math
 
-	GPA: 4.0
+	GPA: 4.0, Summa Cum Laude
 
 Experience & Projects
 =====================
 
-.. card:: UMIACS - 10/24 to Present
+.. card:: UMIACS - 10/24 to 06/25
 	:link: https://www.umiacs.umd.edu/
 
 	Undergraduate Research Assistant
@@ -133,8 +141,10 @@ Technologies
 Awards & Certifications
 =======================
 
+.. card:: UMD CMNS Latin Honors - Summa Cum Laude - Spring 25
+
+.. card:: UMD Computer Science Semester Academic Honors - Fall 22 - Spring 25
+
 .. card:: Astronomer Certification for Apache Airflow Fundamentals - 02/24
 	:link: https://www.credly.com/badges/82aab031-8123-40de-b310-0c73394b5329/public_url
-
-.. card:: UMD Computer Science Semester Academic Honors - Fall 22 - Spring 24
 
