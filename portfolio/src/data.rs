@@ -39,11 +39,11 @@ impl Date {
 pub struct UserInfo {
     pub name: String,
     pub email: String,
-    pub phone: String,
     pub linkedin: String,
     pub github: String,
-    pub location: String,
     pub website: String,
+    pub google_scholar: String,
+    pub twitter: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -19,9 +19,10 @@ with open(ROOT / "portfolio/portfolio.json") as f:
 
 info = por["info"]
 email = info["email"]
-phone = info["phone"]
 linkedin = info["linkedin"]
 github = info["github"]
+google_scholar = info["google_scholar"]
+twitter = info["twitter"]
 
 html_theme = "pydata_sphinx_theme"
 html_sidebars = {"**": []}
@@ -47,9 +48,15 @@ html_theme_options = {
             "type": "fontawesome",
         },
         {
-            "name": "Phone",
-            "url": f"tel:{phone}",
-            "icon": "fa-solid fa-phone",
+            "name": "Google Scholar",
+            "url": google_scholar,
+            "icon": "fa-brands fa-google-scholar",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Twitter",
+            "url": twitter,
+            "icon": "fa-brands fa-x-twitter",
             "type": "fontawesome",
         },
     ],

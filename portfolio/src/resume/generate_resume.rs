@@ -31,6 +31,17 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
             Hyperlink::new(por.info.linkedin.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.linkedin.clone())),
         )
+        .add_run(Run::new().add_text("\tX: "))
+        .add_hyperlink(
+            Hyperlink::new(por.info.twitter.clone(), HyperlinkType::External).add_run(
+                hyperlink_run(por.info.twitter.clone()).add_break(BreakType::TextWrapping),
+            ),
+        )
+        .add_run(Run::new().add_text("Scholar: "))
+        .add_hyperlink(
+            Hyperlink::new(por.info.google_scholar.clone(), HyperlinkType::External)
+                .add_run(hyperlink_run(por.info.google_scholar.clone())),
+        )
         .add_run(Run::new().add_text("\tEmail: "))
         .add_hyperlink(
             Hyperlink::new(
@@ -237,9 +248,9 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
             pub_str_r = pub_str_r.add_break(BreakType::TextWrapping);
 
             if let Some(link) = &publication.link {
-                p = p.add_hyperlink(
-                    Hyperlink::new(link, HyperlinkType::External).add_run(pub_str_r),
-                );
+                p = p.add_hyperlink(Hyperlink::new(link, HyperlinkType::External).add_run(
+                    hyperlink_run(publication.title.clone()).add_break(BreakType::TextWrapping),
+                ));
             } else {
                 p = p.add_run(pub_str_r);
             }
