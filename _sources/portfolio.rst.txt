@@ -9,7 +9,11 @@ Education
 
 	Degree: Ph.D.
 
+	Advisor: Rajiv Khanna
+
 	Focus: Computer Science, AI / ML
+
+	Relevant Coursework: Randomized Algorithms, Statistical Machine Learning
 
 	
 
@@ -28,16 +32,24 @@ Education
 Experience & Projects
 =====================
 
+.. card:: Purdue University - 08/25 to Present
+
+	Graduate Teaching Assistant
+
+	Holding office hours to assist students with their coursework
+
+	Grading assignments and exams and assisting with course materials
+
 .. card:: UMIACS - 10/24 to 06/25
 	:link: https://www.umiacs.umd.edu/
 
 	Undergraduate Research Assistant
 
-	Creating a neural video codec to surpass state of the art compression algorithms for image and video data
+	Created a neural video codec to surpass state of the art compression algorithms for image and video data
 
-	Models are fit to decode the original video from input pixel coordinates efficiently
+	Models were fitted to decode the original video from input pixel coordinates efficiently
 
-	Using methods such as model quantization and meta learning to achieve ideal reconstruction quality with high compression, high encoding, and high decoding speeds
+	Used methods such as model quantization and meta learning to achieve ideal reconstruction quality with high compression, high encoding, and high decoding speeds
 
 .. card:: Shahoveisi Lab - 02/24 to 11/24
 	:link: https://sites.google.com/view/umdturfgrasspathology/home
