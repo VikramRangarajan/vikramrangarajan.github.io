@@ -106,6 +106,13 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
             .add_run(
                 Run::new().add_text(format!("{}, {}", edu.name, edu.location)), // .add_break(BreakType::TextWrapping),
             );
+        if let Some(advisor) = &edu.advisor {
+            p = p.add_run(
+                Run::new()
+                    .add_break(BreakType::TextWrapping)
+                    .add_text(format!("Advisor: {advisor}")),
+            );
+        }
         if let Some(minor) = &edu.minor {
             p = p.add_run(
                 Run::new()

@@ -71,6 +71,7 @@ pub struct Education {
     pub major: Option<String>,
     pub minor: Option<String>,
     pub gpa: Option<String>,
+    pub advisor: Option<String>,
     pub coursework: Option<Vec<String>>,
     pub duration: Duration,
     pub current: bool,

@@ -29,6 +29,9 @@ pub fn add_education(mut s: String, p: &Portfolio) -> String {
         if let Some(degree) = &edu.degree {
             body_str.push_str(format!("Degree: {degree}\n").as_str())
         }
+        if let Some(advisor) = &edu.advisor {
+            body_str.push_str(format!("Advisor: {advisor}\n").as_str())
+        }
         if let Some(major) = &edu.major {
             let major_name = if let Some(major_name) = &edu.major_name {
                 major_name
