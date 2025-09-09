@@ -20,7 +20,7 @@ impl PTrait for Paragraph {
             LineSpacing::new()
                 .line(LINE_SPACING_TWIPS)
                 .before(LINE_SPACING_TWIPS as u32 / 2u32)
-                .after(LINE_SPACING_TWIPS as u32 / 2u32),
+                .after(LINE_SPACING_TWIPS as u32 / 4u32),
         );
         self.property = self.property.set_borders(
             ParagraphBorders::with_empty()
@@ -33,7 +33,7 @@ impl PTrait for Paragraph {
         self.add_tab(Tab {
             val: Some(TabValueType::Right),
             leader: None,
-            pos: Some(inches_to_twips(7) as usize),
+            pos: Some(inches_to_twips(7.5) as usize),
         })
     }
 }

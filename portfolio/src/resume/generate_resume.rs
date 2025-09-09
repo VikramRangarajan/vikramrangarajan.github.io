@@ -8,41 +8,42 @@ use crate::{
 
 pub const TITLE_SIZE: usize = 24 * 2;
 pub const HEADING_SIZE: usize = 14 * 2;
-pub const TEXT_SIZE: usize = 11 * 2;
+pub const TEXT_SIZE: usize = 10 * 2;
 pub const LINE_SPACING: f32 = 1.15;
 pub const LINE_SPACING_TWIPS: i32 = ((TEXT_SIZE / 2) as f32 * LINE_SPACING * 20f32) as i32;
 
 pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
     let p = Paragraph::new()
-        .add_run(Run::new().add_break(BreakType::TextWrapping))
+        .align(AlignmentType::Center)
+        // .add_run(Run::new().add_break(BreakType::TextWrapping))
         .add_tab_stop()
-        .add_run(Run::new().add_text("Website: "))
+        // .add_run(Run::new().add_text("Website: "))
         .add_hyperlink(
             Hyperlink::new(por.info.website.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.website.clone())),
         )
-        .add_run(Run::new().add_text("\tGitHub: "))
+        .add_run(Run::new().add_text(" | "))
         .add_hyperlink(
             Hyperlink::new(por.info.github.clone(), HyperlinkType::External)
-                .add_run(hyperlink_run(por.info.github.clone()).add_break(BreakType::TextWrapping)),
+                .add_run(hyperlink_run(por.info.github.clone())), //.add_break(BreakType::TextWrapping)),
         )
-        .add_run(Run::new().add_text("LinkedIn: "))
+        .add_run(Run::new().add_text(" | "))
         .add_hyperlink(
             Hyperlink::new(por.info.linkedin.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.linkedin.clone())),
         )
-        .add_run(Run::new().add_text("\tX: "))
+        .add_run(Run::new().add_text(" "))
         .add_hyperlink(
             Hyperlink::new(por.info.twitter.clone(), HyperlinkType::External).add_run(
-                hyperlink_run(por.info.twitter.clone()).add_break(BreakType::TextWrapping),
+                hyperlink_run(por.info.twitter.clone()), //.add_break(BreakType::TextWrapping),
             ),
         )
-        .add_run(Run::new().add_text("Scholar: "))
+        .add_run(Run::new().add_text(" | "))
         .add_hyperlink(
             Hyperlink::new(por.info.google_scholar.clone(), HyperlinkType::External)
                 .add_run(hyperlink_run(por.info.google_scholar.clone())),
         )
-        .add_run(Run::new().add_text("\tEmail: "))
+        .add_run(Run::new().add_text(" | "))
         .add_hyperlink(
             Hyperlink::new(
                 format!("mailto:{}", por.info.email.clone()),
@@ -75,12 +76,12 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
             body_str.push_str(major);
         }
         let mut p = Paragraph::new()
-            .add_tab(Tab {
-                val: Some(TabValueType::Right),
-                leader: None,
-                pos: Some(inches_to_twips(7) as usize),
-            })
-            .add_run(Run::new().bold().add_text(body_str))
+            .add_tab_stop()
+            .add_run(
+                Run::new()
+                    .add_text(format!("{}, {}", edu.name, edu.location))
+                    .bold(),
+            )
             .add_run(
                 Run::new()
                     .add_text({
@@ -103,9 +104,10 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
                     .italic()
                     .add_break(BreakType::TextWrapping),
             )
-            .add_run(
-                Run::new().add_text(format!("{}, {}", edu.name, edu.location)), // .add_break(BreakType::TextWrapping),
-            );
+            .add_run(Run::new().bold().add_text(body_str));
+        if let Some(gpa) = &edu.gpa {
+            p = p.add_run(Run::new().add_text(&format!("\tGPA: {}", gpa)));
+        }
         if let Some(advisor) = &edu.advisor {
             p = p.add_run(
                 Run::new()
@@ -118,13 +120,6 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
                 Run::new()
                     .add_break(BreakType::TextWrapping)
                     .add_text(format!("Minor: {minor}")),
-            );
-        }
-        if let Some(gpa) = &edu.gpa {
-            p = p.add_run(
-                Run::new()
-                    .add_break(BreakType::TextWrapping)
-                    .add_text(format!("GPA: {gpa}")),
             );
         }
         if let Some(coursework) = &edu.coursework {
@@ -189,7 +184,7 @@ fn add_experiences(mut doc: Docx, por: &Portfolio) -> Docx {
         p = p.add_run(r);
 
         if let Some(title) = &exp.title {
-            p = p.add_run(Run::new().add_text(title));
+            p = p.add_run(Run::new().add_text(title).bold());
         }
 
         doc = doc.add_paragraph(p);
@@ -211,20 +206,27 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
             .insert_hr(),
     );
     for publication in &por.publications {
-        let mut p = Paragraph::new().numbering(NumberingId::new(1), IndentLevel::new(0));
+        let mut p = Paragraph::new()
+            .numbering(NumberingId::new(1), IndentLevel::new(0))
+            .add_tab_stop();
         for (i, author) in publication.authors.iter().enumerate() {
             let mut r = if i < publication.authors.len() - 1 {
                 Run::new().add_text(format!("{author}, "))
             } else {
-                Run::new()
-                    .add_text(author)
-                    .add_break(BreakType::TextWrapping)
+                Run::new().add_text(author)
+                // .add_break(BreakType::TextWrapping)
             };
             if *author == por.info.name {
                 r = r.bold();
             }
             p = p.add_run(r);
         }
+
+        p = p.add_run(
+            Run::new()
+                .add_text(&format!("\t{}", publication.status.clone()))
+                .add_break(BreakType::TextWrapping),
+        );
         let mut pub_str_r = Run::new().add_text(publication.title.clone());
         if publication.status.to_lowercase().contains("published") {
             if let Some(link) = &publication.link {
@@ -255,13 +257,14 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
             pub_str_r = pub_str_r.add_break(BreakType::TextWrapping);
 
             if let Some(link) = &publication.link {
-                p = p.add_hyperlink(Hyperlink::new(link, HyperlinkType::External).add_run(
-                    hyperlink_run(publication.title.clone()).add_break(BreakType::TextWrapping),
-                ));
+                p = p.add_hyperlink(
+                    Hyperlink::new(link, HyperlinkType::External)
+                        .add_run(hyperlink_run(publication.title.clone())),
+                );
             } else {
                 p = p.add_run(pub_str_r);
             }
-            p = p.add_run(Run::new().add_text(publication.status.clone()));
+            // p = p.add_run(Run::new().add_text(publication.status.clone()));
         }
         doc = doc.add_paragraph(p);
     }
@@ -321,14 +324,15 @@ pub fn generate_resumes(path: &Path) {
     let file = std::fs::File::create(path).unwrap();
     let p = Paragraph::new()
         .align(AlignmentType::Center)
-        .add_run(Run::new().add_text(por.info.name.clone()).size(TITLE_SIZE));
+        .add_run(Run::new().add_text(por.info.name.clone()).size(TITLE_SIZE))
+        .line_spacing(LineSpacing::new().after((LINE_SPACING_TWIPS / 2) as u32));
     let mut doc = Docx::new()
         .page_size(inches_to_twips(8.5) as u32, inches_to_twips(11) as u32)
         .page_margin(PageMargin {
-            top: inches_to_twips(0.75),
-            left: inches_to_twips(0.75),
-            bottom: inches_to_twips(0.75),
-            right: inches_to_twips(0.75),
+            top: inches_to_twips(0.5),
+            left: inches_to_twips(0.5),
+            bottom: inches_to_twips(0.5),
+            right: inches_to_twips(0.5),
             header: 0,
             footer: 0,
             gutter: 0,
@@ -359,9 +363,9 @@ pub fn generate_resumes(path: &Path) {
     doc = add_info_and_links(doc, &por);
 
     doc = add_education(doc, &por);
+    doc = add_skills(doc, &por);
     doc = add_experiences(doc, &por);
     doc = add_publications(doc, &por);
-    doc = add_skills(doc, &por);
     doc = add_awards(doc, &por);
     doc.build().pack(file).expect("Error creating docx");
 }

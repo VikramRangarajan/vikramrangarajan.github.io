@@ -20,7 +20,7 @@
         "start": {
           "NumDate": {
             "day": null,
-            "month": 9,
+            "month": 8,
             "year": 2025
           }
         },
@@ -50,21 +50,17 @@
       "minor": "Statistics",
       "gpa": "4.0, Summa Cum Laude",
       "coursework": [
-        "Artificial Intelligence",
-        "Machine Learning",
-        "Computer Vision",
-        "Natural Language Processing",
-        "Data Science",
+        "Artificial Intelligence (AI)",
+        "Machine Learning (ML)",
+        "Computer Vision (CV)",
+        "Natural Language Processing (NLP)",
+        "Data Science (DS)",
         "Parallel Computing",
         "Calculus 1, 2 & 3",
         "Statistics",
         "Linear Algebra",
         "Compilers",
-        "Computer Systems",
-        "Algorithms",
-        "Organization of Programming Languages",
-        "Object-Oriented Programming 1 & 2",
-        "Discrete Math"
+        "Algorithms"
       ],
       "duration": {
         "start": {
@@ -165,6 +161,7 @@
       },
       "current": true,
       "description": [
+        "Leading lab section to guide students to success",
         "Holding office hours to assist students with their coursework",
         "Grading assignments and exams and assisting with course materials"
       ]
@@ -230,7 +227,7 @@
       "description": [
         "Created manuscripts for machine learning research projects related to identifying and managing turfgrass related diseases",
         "Used methods such as transfer learning and gradual unfreezing to train highly accurate nematode image classifiers",
-        "Performed automatic hyperparameter optimization using Ray Tune to train scikit-learn and PyTorch models to achieve highest metrics",
+        "Performed automatic hyperparameter optimization using Ray Tune to train sklearn and torch models to achieve highest metrics",
         "Performed parallelized automatic image dataset preprocessing using OpenCV and NumPy"
       ]
     },
@@ -261,9 +258,9 @@
       },
       "current": true,
       "description": [
-        "Created a library which provides Tensors with reverse-mode automatic differentiation capabilities using only numpy arrays for the Intro to Artificial Intelligence (CMSC421) class",
-        "Supports many differentiable n-dimensional tensor operations such as matrix multiplication, convolution, element-wise functions, aggregate functions, and arithmetic operations, with support for operations along any axes",
-        "Created MNIST demo using convolutional, dense, and normalization layers and used techniques such as Xavier/Glorot initialization and residual connections",
+        "Created a library which provides Tensors with reverse-mode automatic differentiation capabilities for the Intro to AI class",
+        "Supports many differentiable n-dimensional tensor operations such as matmul, ConvNd, element-wise, reductions, etc.",
+        "Created MNIST demo using convolutional, dense, and softmax layers",
         "Fully documented using sphinx at https://vikramrangarajan.github.io/SimpleTensor/"
       ]
     },
