@@ -5,7 +5,7 @@ Portfolio
 Education
 =========
 
-.. card:: Purdue University - 09/25 to Present, Expected 05/30
+.. card:: Purdue University - 08/25 to Present, Expected 05/30
 
 	Degree: Ph.D.
 
@@ -25,7 +25,7 @@ Education
 
 	Minor: Statistics
 
-	Relevant Coursework: Artificial Intelligence, Machine Learning, Computer Vision, Natural Language Processing, Data Science, Parallel Computing, Calculus 1, 2 & 3, Statistics, Linear Algebra, Compilers, Computer Systems, Algorithms, Organization of Programming Languages, Object-Oriented Programming 1 & 2, Discrete Math
+	Relevant Coursework: Artificial Intelligence (AI), Machine Learning (ML), Computer Vision (CV), Natural Language Processing (NLP), Data Science (DS), Parallel Computing, Calculus 1, 2 & 3, Statistics, Linear Algebra, Compilers, Algorithms
 
 	GPA: 4.0, Summa Cum Laude
 
@@ -35,6 +35,8 @@ Experience & Projects
 .. card:: Purdue University - 08/25 to Present
 
 	Graduate Teaching Assistant
+
+	Leading lab section to guide students to success
 
 	Holding office hours to assist students with their coursework
 
@@ -60,7 +62,7 @@ Experience & Projects
 
 	Used methods such as transfer learning and gradual unfreezing to train highly accurate nematode image classifiers
 
-	Performed automatic hyperparameter optimization using Ray Tune to train scikit-learn and PyTorch models to achieve highest metrics
+	Performed automatic hyperparameter optimization using Ray Tune to train sklearn and torch models to achieve highest metrics
 
 	Performed parallelized automatic image dataset preprocessing using OpenCV and NumPy
 
@@ -69,11 +71,11 @@ Experience & Projects
 
 	
 
-	Created a library which provides Tensors with reverse-mode automatic differentiation capabilities using only numpy arrays for the Intro to Artificial Intelligence (CMSC421) class
+	Created a library which provides Tensors with reverse-mode automatic differentiation capabilities for the Intro to AI class
 
-	Supports many differentiable n-dimensional tensor operations such as matrix multiplication, convolution, element-wise functions, aggregate functions, and arithmetic operations, with support for operations along any axes
+	Supports many differentiable n-dimensional tensor operations such as matmul, ConvNd, element-wise, reductions, etc.
 
-	Created MNIST demo using convolutional, dense, and normalization layers and used techniques such as Xavier/Glorot initialization and residual connections
+	Created MNIST demo using convolutional, dense, and softmax layers
 
 	Fully documented using sphinx at https://vikramrangarajan.github.io/SimpleTensor/
 
