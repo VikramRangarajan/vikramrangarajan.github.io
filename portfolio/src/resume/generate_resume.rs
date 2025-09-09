@@ -106,7 +106,7 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
             )
             .add_run(Run::new().bold().add_text(body_str));
         if let Some(gpa) = &edu.gpa {
-            p = p.add_run(Run::new().add_text(&format!("\tGPA: {}", gpa)));
+            p = p.add_run(Run::new().add_text(format!("\tGPA: {gpa}")));
         }
         if let Some(advisor) = &edu.advisor {
             p = p.add_run(
@@ -224,7 +224,7 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
 
         p = p.add_run(
             Run::new()
-                .add_text(&format!("\t{}", publication.status.clone()))
+                .add_text(format!("\t{}", publication.status.clone()))
                 .add_break(BreakType::TextWrapping),
         );
         let mut pub_str_r = Run::new().add_text(publication.title.clone());

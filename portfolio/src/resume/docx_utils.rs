@@ -16,12 +16,7 @@ pub trait PTrait {
 
 impl PTrait for Paragraph {
     fn insert_hr(mut self) -> Paragraph {
-        self = self.line_spacing(
-            LineSpacing::new()
-                .line(LINE_SPACING_TWIPS)
-                .before(LINE_SPACING_TWIPS as u32 / 2u32)
-                .after(LINE_SPACING_TWIPS as u32 / 4u32),
-        );
+        self = self.line_spacing(LineSpacing::new().line(LINE_SPACING_TWIPS));
         self.property = self.property.set_borders(
             ParagraphBorders::with_empty()
                 .set(ParagraphBorder::new(ParagraphBorderPosition::Bottom)),
