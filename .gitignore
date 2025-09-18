@@ -123,3 +123,5 @@ docs/source/*.rst
 !/docs/source/conf.py
 !/docs/source/index.rst
 !/docs/source/_static/pfp.png
+
+*.DS_Store

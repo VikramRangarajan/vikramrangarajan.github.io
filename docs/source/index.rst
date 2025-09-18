@@ -10,7 +10,7 @@ Introduction
 About Me
 =========
 
-I am an incoming PhD student at Purdue University advised by Professor Rajiv Khanna with a focus on AI/ML and optimization problems.
+I am a Computer Science PhD student at Purdue University advised by Professor Rajiv Khanna with a focus on AI/ML and optimization problems.
 
 I was an undergraduate student at the University of Maryland at College Park (graduated May 2025) where
 I majored in computer science on the machine learning track with a minor in statistics.
