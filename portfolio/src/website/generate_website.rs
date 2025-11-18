@@ -165,10 +165,10 @@ pub fn create_publications_file(p: &Portfolio) {
         let mut authors_str = publication.authors.join(", ");
         authors_str = authors_str.replace(&p.info.name, format!("**{}**", p.info.name).as_str());
         if let Some(journal) = &publication.journal {
-            authors_str.push_str(format!("\nIn {journal}\n").as_str());
+            authors_str.push_str(format!("\n{journal}\n").as_str());
         }
         if !publication.status.to_lowercase().contains("published") {
-            authors_str.push_str(format!("\n{}", publication.status).as_str());
+            authors_str.push_str(format!("\n{} ", publication.status).as_str());
         }
         if let Some(date) = &publication.date {
             authors_str.push_str(date.str_date().as_str());

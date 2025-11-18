@@ -43,7 +43,7 @@ pub struct UserInfo {
     pub github: String,
     pub website: String,
     pub google_scholar: String,
-    pub twitter: String,
+    pub phone: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

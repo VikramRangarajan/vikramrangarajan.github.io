@@ -30,12 +30,17 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text(" | "))
         .add_hyperlink(
             Hyperlink::new(por.info.linkedin.clone(), HyperlinkType::External)
-                .add_run(hyperlink_run(por.info.linkedin.clone())),
+                .add_run(hyperlink_run(por.info.linkedin.clone()))
+                .add_run(Run::new().add_break(BreakType::TextWrapping)),
         )
-        .add_run(Run::new().add_text(" "))
+        // .add_run(Run::new().add_text(" "))
         .add_hyperlink(
-            Hyperlink::new(por.info.twitter.clone(), HyperlinkType::External).add_run(
-                hyperlink_run(por.info.twitter.clone()), //.add_break(BreakType::TextWrapping),
+            Hyperlink::new(
+                format!("tel:{}", por.info.email.clone()),
+                HyperlinkType::External,
+            )
+            .add_run(
+                hyperlink_run(por.info.phone.clone()), //.add_break(BreakType::TextWrapping),
             ),
         )
         .add_run(Run::new().add_text(" | "))
@@ -221,14 +226,21 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
             }
             p = p.add_run(r);
         }
+        let published = publication.status.to_lowercase().contains("published");
+
+        let right_text = if let Some(date) = &publication.date {
+            format!("\t{} {}", publication.status.clone(), date.str_date())
+        } else {
+            format!("\t{}", publication.status.clone())
+        };
 
         p = p.add_run(
             Run::new()
-                .add_text(format!("\t{}", publication.status.clone()))
+                .add_text(right_text)
                 .add_break(BreakType::TextWrapping),
         );
         let mut pub_str_r = Run::new().add_text(publication.title.clone());
-        if publication.status.to_lowercase().contains("published") {
+        if published {
             if let Some(link) = &publication.link {
                 p = p
                     .add_hyperlink(
@@ -264,7 +276,6 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
             } else {
                 p = p.add_run(pub_str_r);
             }
-            // p = p.add_run(Run::new().add_text(publication.status.clone()));
         }
         doc = doc.add_paragraph(p);
     }

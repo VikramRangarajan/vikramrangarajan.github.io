@@ -6,7 +6,7 @@
     "github": "https://github.com/VikramRangarajan/",
     "website": "https://vikramrangarajan.github.io/",
     "google_scholar": "https://scholar.google.com/citations?user=tDot38sAAAAJ",
-    "twitter": "https://x.com/VikramRang95234"
+    "phone": "609-609-6762"
   },
   "education": [
     {
@@ -14,6 +14,7 @@
       "location": "West Lafayette, IN, 47907",
       "advisor": "Rajiv Khanna",
       "degree": "Ph.D.",
+      "gpa": "4.0",
       "major_name": "Focus:",
       "major": "Computer Science, AI / ML",
       "duration": {
@@ -37,10 +38,7 @@
         }
       },
       "current": true,
-      "coursework": [
-        "Randomized Algorithms",
-        "Statistical Machine Learning"
-      ]
+      "coursework": ["Randomized Algorithms", "Statistical Machine Learning"]
     },
     {
       "name": "University of Maryland",
@@ -120,7 +118,7 @@
         "Max Ehrlich",
         "Abhinav Shrivastava"
       ],
-      "status": "In Review, May 2025",
+      "status": "In Preparation",
       "link": "https://arxiv.org/abs/2506.23382"
     },
     {
@@ -131,10 +129,16 @@
         "Benjamin Waldo",
         "Sadegh Jafari"
       ],
-      "status": "In Review, December 2024",
-      "journal": null,
+      "status": "Accepted",
+      "journal": "Scientific Reports",
       "link": "https://huggingface.co/spaces/VikramR/NematodeClassifier",
-      "date": null
+      "date": {
+        "NumDate": {
+          "day": null,
+          "month": 11,
+          "year": 2025
+        }
+      }
     }
   ],
   "experience": [

@@ -22,7 +22,7 @@ email = info["email"]
 linkedin = info["linkedin"]
 github = info["github"]
 google_scholar = info["google_scholar"]
-twitter = info["twitter"]
+phone = info["phone"]
 
 html_theme = "pydata_sphinx_theme"
 html_sidebars = {"**": []}
@@ -54,9 +54,9 @@ html_theme_options = {
             "type": "fontawesome",
         },
         {
-            "name": "Twitter",
-            "url": twitter,
-            "icon": "fa-brands fa-x-twitter",
+            "name": "Phone",
+            "url": phone,
+            "icon": "fa-solid fa-phone",
             "type": "fontawesome",
         },
     ],
