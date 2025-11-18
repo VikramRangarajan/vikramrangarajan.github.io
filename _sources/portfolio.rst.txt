@@ -15,7 +15,7 @@ Education
 
 	Relevant Coursework: Randomized Algorithms, Statistical Machine Learning
 
-	
+	GPA: 4.0
 
 .. card:: University of Maryland - 09/22 to 05/25
 

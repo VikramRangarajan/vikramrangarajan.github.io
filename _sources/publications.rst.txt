@@ -7,12 +7,16 @@ Publications
 
 	**Vikram Rangarajan**, Shishira Maiya, Max Ehrlich, Abhinav Shrivastava
 
-	In Review, May 2025
+	In Preparation 
 
 .. card:: Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms
 	:link: https://huggingface.co/spaces/VikramR/NematodeClassifier
 
 	**Vikram Rangarajan**, Fereshteh Shahoveisi, Benjamin Waldo, Sadegh Jafari
 
-	In Review, December 2024
+	Scientific Reports
+
+	
+
+	Accepted 11/25
 
