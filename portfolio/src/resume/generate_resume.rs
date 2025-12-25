@@ -30,10 +30,9 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_text(" | "))
         .add_hyperlink(
             Hyperlink::new(por.info.linkedin.clone(), HyperlinkType::External)
-                .add_run(hyperlink_run(por.info.linkedin.clone()))
-                .add_run(Run::new().add_break(BreakType::TextWrapping)),
+                .add_run(hyperlink_run(por.info.linkedin.clone())),
         )
-        // .add_run(Run::new().add_text(" "))
+        .add_run(Run::new().add_break(BreakType::TextWrapping))
         .add_hyperlink(
             Hyperlink::new(
                 format!("tel:{}", por.info.email.clone()),
@@ -275,6 +274,13 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
                 );
             } else {
                 p = p.add_run(pub_str_r);
+            }
+            if let Some(journal) = &publication.journal {
+                p = p.add_run(
+                    Run::new()
+                        .add_break(BreakType::TextWrapping)
+                        .add_text(journal),
+                );
             }
         }
         doc = doc.add_paragraph(p);

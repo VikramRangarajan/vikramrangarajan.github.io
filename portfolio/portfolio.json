@@ -14,7 +14,7 @@
       "location": "West Lafayette, IN, 47907",
       "advisor": "Rajiv Khanna",
       "degree": "Ph.D.",
-      "gpa": "4.0",
+      "gpa": "3.85",
       "major_name": "Focus:",
       "major": "Computer Science, AI / ML",
       "duration": {
@@ -38,7 +38,12 @@
         }
       },
       "current": true,
-      "coursework": ["Randomized Algorithms", "Statistical Machine Learning"]
+      "coursework": [
+        "Foundations of Deep Learning",
+        "Randomized Algorithms",
+        "Statistical Machine Learning",
+        "Computer Networks"
+      ]
     },
     {
       "name": "University of Maryland",
@@ -54,7 +59,7 @@
         "Natural Language Processing (NLP)",
         "Data Science (DS)",
         "Parallel Computing",
-        "Calculus 1, 2 & 3",
+        "Calculus 1, 2, & 3",
         "Statistics",
         "Linear Algebra",
         "Compilers",
@@ -165,9 +170,10 @@
       },
       "current": true,
       "description": [
+        "Assisting with CS240: Programming in C",
         "Leading lab section to guide students to success",
         "Holding office hours to assist students with their coursework",
-        "Grading assignments and exams and assisting with course materials"
+        "Grading assignments, proctoring exams, and assisting with course materials"
       ]
     },
     {
