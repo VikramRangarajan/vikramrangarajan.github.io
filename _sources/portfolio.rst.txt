@@ -13,9 +13,9 @@ Education
 
 	Focus: Computer Science, AI / ML
 
-	Relevant Coursework: Randomized Algorithms, Statistical Machine Learning
+	Relevant Coursework: Foundations of Deep Learning, Randomized Algorithms, Statistical Machine Learning, Computer Networks
 
-	GPA: 4.0
+	GPA: 3.85
 
 .. card:: University of Maryland - 09/22 to 05/25
 
@@ -25,7 +25,7 @@ Education
 
 	Minor: Statistics
 
-	Relevant Coursework: Artificial Intelligence (AI), Machine Learning (ML), Computer Vision (CV), Natural Language Processing (NLP), Data Science (DS), Parallel Computing, Calculus 1, 2 & 3, Statistics, Linear Algebra, Compilers, Algorithms
+	Relevant Coursework: Artificial Intelligence (AI), Machine Learning (ML), Computer Vision (CV), Natural Language Processing (NLP), Data Science (DS), Parallel Computing, Calculus 1, 2, & 3, Statistics, Linear Algebra, Compilers, Algorithms
 
 	GPA: 4.0, Summa Cum Laude
 
@@ -36,11 +36,13 @@ Experience & Projects
 
 	Graduate Teaching Assistant
 
+	Assisting with CS240: Programming in C
+
 	Leading lab section to guide students to success
 
 	Holding office hours to assist students with their coursework
 
-	Grading assignments and exams and assisting with course materials
+	Grading assignments, proctoring exams, and assisting with course materials
 
 .. card:: UMIACS - 10/24 to 06/25
 	:link: https://www.umiacs.umd.edu/
