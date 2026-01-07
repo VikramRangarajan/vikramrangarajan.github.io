@@ -116,17 +116,6 @@
   ],
   "publications": [
     {
-      "title": "SIEDD (Shared Implicit-Encoder with Separate Decoders)",
-      "authors": [
-        "Vikram Rangarajan",
-        "Shishira Maiya",
-        "Max Ehrlich",
-        "Abhinav Shrivastava"
-      ],
-      "status": "In Preparation",
-      "link": "https://arxiv.org/abs/2506.23382"
-    },
-    {
       "title": "Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms",
       "authors": [
         "Vikram Rangarajan",
@@ -134,13 +123,31 @@
         "Benjamin Waldo",
         "Sadegh Jafari"
       ],
-      "status": "Accepted",
+      "status": "Published",
       "journal": "Scientific Reports",
-      "link": "https://huggingface.co/spaces/VikramR/NematodeClassifier",
+      "link": "https://doi.org/10.1038/s41598-025-29467-4",
       "date": {
         "NumDate": {
           "day": null,
-          "month": 11,
+          "month": 12,
+          "year": 2025
+        }
+      }
+    },
+    {
+      "title": "SIEDD (Shared Implicit-Encoder with Separate Decoders)",
+      "authors": [
+        "Vikram Rangarajan",
+        "Shishira Maiya",
+        "Max Ehrlich",
+        "Abhinav Shrivastava"
+      ],
+      "status": "arXiv",
+      "link": "https://arxiv.org/abs/2506.23382",
+      "date": {
+        "NumDate": {
+          "day": null,
+          "month": 6,
           "year": 2025
         }
       }

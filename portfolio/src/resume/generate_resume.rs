@@ -255,14 +255,7 @@ fn add_publications(mut doc: Docx, por: &Portfolio) -> Docx {
                 );
             }
             if let Some(journal) = &publication.journal {
-                p = p.add_run(
-                    Run::new()
-                        .add_text(journal)
-                        .add_break(BreakType::TextWrapping),
-                );
-            }
-            if let Some(date) = &publication.date {
-                p = p.add_run(Run::new().add_text(date.str_date()));
+                p = p.add_run(Run::new().add_text(journal));
             }
         } else {
             pub_str_r = pub_str_r.add_break(BreakType::TextWrapping);

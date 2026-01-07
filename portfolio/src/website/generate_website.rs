@@ -167,9 +167,9 @@ pub fn create_publications_file(p: &Portfolio) {
         if let Some(journal) = &publication.journal {
             authors_str.push_str(format!("\n{journal}\n").as_str());
         }
-        if !publication.status.to_lowercase().contains("published") {
-            authors_str.push_str(format!("\n{} ", publication.status).as_str());
-        }
+        // if !publication.status.to_lowercase().contains("published") {
+        authors_str.push_str(format!("\n{} ", publication.status).as_str());
+        // }
         if let Some(date) = &publication.date {
             authors_str.push_str(date.str_date().as_str());
         }
