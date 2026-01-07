@@ -2,15 +2,8 @@
 Publications
 ============
 
-.. card:: SIEDD (Shared Implicit-Encoder with Separate Decoders)
-	:link: https://arxiv.org/abs/2506.23382
-
-	**Vikram Rangarajan**, Shishira Maiya, Max Ehrlich, Abhinav Shrivastava
-
-	In Preparation 
-
 .. card:: Identification of Plant-Parasitic Nematode Genera in Turfgrass Using Deep Learning Algorithms
-	:link: https://huggingface.co/spaces/VikramR/NematodeClassifier
+	:link: https://doi.org/10.1038/s41598-025-29467-4
 
 	**Vikram Rangarajan**, Fereshteh Shahoveisi, Benjamin Waldo, Sadegh Jafari
 
@@ -18,5 +11,12 @@ Publications
 
 	
 
-	Accepted 11/25
+	Published 12/25
+
+.. card:: SIEDD (Shared Implicit-Encoder with Separate Decoders)
+	:link: https://arxiv.org/abs/2506.23382
+
+	**Vikram Rangarajan**, Shishira Maiya, Max Ehrlich, Abhinav Shrivastava
+
+	arXiv 06/25
 
