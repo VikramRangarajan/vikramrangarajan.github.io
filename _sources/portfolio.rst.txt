@@ -17,6 +17,8 @@ Education
 
 	GPA: 3.85
 
+	Topics of Interest: Deep Learning, Model Quantization, Second Order Methods, and GPU Kernels
+
 .. card:: University of Maryland - 09/22 to 05/25
 
 	Degree: B.S.
@@ -28,6 +30,8 @@ Education
 	Relevant Coursework: Artificial Intelligence (AI), Machine Learning (ML), Computer Vision (CV), Natural Language Processing (NLP), Data Science (DS), Parallel Computing, Calculus 1, 2, & 3, Statistics, Linear Algebra, Compilers, Algorithms
 
 	GPA: 4.0, Summa Cum Laude
+
+	
 
 Experience & Projects
 =====================
@@ -102,6 +106,8 @@ Programming Languages
 
 	.. card:: Python
 
+	.. card:: Triton
+
 	.. card:: C/C++/CUDA
 
 	.. card:: Rust
@@ -118,7 +124,7 @@ Programming Languages
 
 	.. card:: SAS
 
-Technologies
+Machine Learning
 
 .. card-carousel:: 2
 
@@ -132,19 +138,27 @@ Technologies
 
 	.. card:: OpenCV
 
-	.. card:: HPC (SLURM)
+HPC / Systems
+
+.. card-carousel:: 2
+
+	.. card:: Linux
+
+	.. card:: SLURM
+
+	.. card:: Docker
+
+	.. card:: Git
 
 	.. card:: MPI
 
 	.. card:: OpenMP
 
-	.. card:: Git
-
-	.. card:: Linux
-
-	.. card:: Docker
-
 	.. card:: Ray
+
+Data Engineering
+
+.. card-carousel:: 2
 
 	.. card:: Azure Cloud Services
 
