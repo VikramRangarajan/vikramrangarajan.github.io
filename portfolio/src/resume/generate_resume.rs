@@ -137,6 +137,13 @@ fn add_education(mut doc: Docx, por: &Portfolio) -> Docx {
                 p = p.add_run(Run::new().add_text(coursework.join(", ")));
             }
         }
+        if let Some(extra) = &edu.extra {
+            p = p.add_run(
+                Run::new()
+                    .add_break(BreakType::TextWrapping)
+                    .add_text(extra),
+            );
+        }
         doc = doc.add_paragraph(p);
     }
     doc

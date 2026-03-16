@@ -50,7 +50,10 @@ pub fn add_education(mut s: String, p: &Portfolio) -> String {
             }
         }
         if let Some(gpa) = &edu.gpa {
-            body_str.push_str(format!("GPA: {gpa}").as_str());
+            body_str.push_str(format!("GPA: {gpa}\n").as_str());
+        }
+        if let Some(extra) = &edu.extra {
+            body_str.push_str(extra);
         }
         s.add_card(
             Some(format!("{} - {time}", edu.name)),

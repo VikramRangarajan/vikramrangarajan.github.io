@@ -43,7 +43,8 @@
         "Randomized Algorithms",
         "Statistical Machine Learning",
         "Computer Networks"
-      ]
+      ],
+      "extra": "Topics of Interest: Deep Learning, Model Quantization, Second Order Methods, and GPU Kernels"
     },
     {
       "name": "University of Maryland",
@@ -354,6 +355,7 @@
       "group_name": "Programming Languages",
       "skills": [
         "Python",
+        "Triton",
         "C/C++/CUDA",
         "Rust",
         "Java",
@@ -365,20 +367,30 @@
       ]
     },
     {
-      "group_name": "Technologies",
+      "group_name": "Machine Learning",
       "skills": [
         "PyTorch",
         "TensorFlow",
         "NumPy",
         "scikit-learn",
-        "OpenCV",
-        "HPC (SLURM)",
+        "OpenCV"
+      ]
+    },
+    {
+      "group_name": "HPC / Systems",
+      "skills": [
+        "Linux",
+        "SLURM",
+        "Docker",
+        "Git",
         "MPI",
         "OpenMP",
-        "Git",
-        "Linux",
-        "Docker",
-        "Ray",
+        "Ray"
+      ]
+    },
+    {
+      "group_name": "Data Engineering",
+      "skills": [
         "Azure Cloud Services",
         "SQL",
         "Relational Databases (Postgres, Oracle, SQL Server)",
