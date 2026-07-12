@@ -35,7 +35,7 @@ pub fn add_info_and_links(mut doc: Docx, por: &Portfolio) -> Docx {
         .add_run(Run::new().add_break(BreakType::TextWrapping))
         .add_hyperlink(
             Hyperlink::new(
-                format!("tel:{}", por.info.email.clone()),
+                format!("tel:+{}", por.info.phone.clone()),
                 HyperlinkType::External,
             )
             .add_run(

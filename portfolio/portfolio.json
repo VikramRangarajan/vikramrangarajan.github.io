@@ -6,7 +6,7 @@
     "github": "https://github.com/VikramRangarajan/",
     "website": "https://vikramrangarajan.github.io/",
     "google_scholar": "https://scholar.google.com/citations?user=tDot38sAAAAJ",
-    "phone": "609-609-6762"
+    "phone": "16096096762"
   },
   "education": [
     {
@@ -182,6 +182,38 @@
         "Leading lab section to guide students to success",
         "Holding office hours to assist students with their coursework",
         "Grading assignments, proctoring exams, and assisting with course materials"
+      ]
+    },
+    {
+      "title": "Machine Learning Intern",
+      "title_link": "https://chai-iitmp.org/",
+      "employment_type": "full-time",
+      "company_name": "IITM Pravartak Technologies Foundation",
+      "location": "Chennai, Tamil Nadu, India, 600113",
+      "location_type": "In-Person",
+      "duration": {
+        "start": {
+          "NumDate": {
+            "day": null,
+            "month": 5,
+            "year": 2026
+          }
+        },
+        "end": {
+          "End": {
+            "NumDate": {
+              "day": null,
+              "month": 7,
+              "year": 2026
+            }
+          }
+        }
+      },
+      "current": true,
+      "description": [
+        "Performed supervised fine-tuning and reinforcement learning (GRPO) to train a NL-to-cypher LLM",
+        "Created a change detection training pipeline and added an IJEPA trainer to torchgeo",
+        "Added dynamic KV-cache quantization to vLLM and Gemma 4 using posterior sampling and sharpness approximation"
       ]
     },
     {
@@ -368,25 +400,11 @@
     },
     {
       "group_name": "Machine Learning",
-      "skills": [
-        "PyTorch",
-        "TensorFlow",
-        "NumPy",
-        "scikit-learn",
-        "OpenCV"
-      ]
+      "skills": ["Hugging Face Ecosystem (transformers, datasets, trl, etc.)", "vLLM", "PyTorch", "JAX", "NumPy", "scikit-learn", "OpenCV"]
     },
     {
       "group_name": "HPC / Systems",
-      "skills": [
-        "Linux",
-        "SLURM",
-        "Docker",
-        "Git",
-        "MPI",
-        "OpenMP",
-        "Ray"
-      ]
+      "skills": ["Linux", "SLURM", "Docker", "Git", "MPI", "OpenMP", "Ray"]
     },
     {
       "group_name": "Data Engineering",

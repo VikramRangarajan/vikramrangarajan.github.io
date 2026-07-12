@@ -22,7 +22,7 @@ email = info["email"]
 linkedin = info["linkedin"]
 github = info["github"]
 google_scholar = info["google_scholar"]
-phone = info["phone"]
+phone = f'tel:+{info["phone"]}'
 
 html_theme = "pydata_sphinx_theme"
 html_sidebars = {"**": []}
