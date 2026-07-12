@@ -48,6 +48,17 @@ Experience & Projects
 
 	Grading assignments, proctoring exams, and assisting with course materials
 
+.. card:: IITM Pravartak Technologies Foundation - 05/26 to 07/26
+	:link: https://chai-iitmp.org/
+
+	Machine Learning Intern
+
+	Performed supervised fine-tuning and reinforcement learning (GRPO) to train a NL-to-cypher LLM
+
+	Created a change detection training pipeline and added an IJEPA trainer to torchgeo
+
+	Added dynamic KV-cache quantization to vLLM and Gemma 4 using posterior sampling and sharpness approximation
+
 .. card:: UMIACS - 10/24 to 06/25
 	:link: https://www.umiacs.umd.edu/
 
@@ -128,9 +139,13 @@ Machine Learning
 
 .. card-carousel:: 2
 
+	.. card:: Hugging Face Ecosystem (transformers, datasets, trl, etc.)
+
+	.. card:: vLLM
+
 	.. card:: PyTorch
 
-	.. card:: TensorFlow
+	.. card:: JAX
 
 	.. card:: NumPy
 
