@@ -47,6 +47,8 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'blog/sndap1';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -422,7 +424,7 @@
      
     <i class="fa fa-pencil"></i>
      
-    <span>Draft</span>
+    <span>19 August 2026</span>
      
   </h2>
   <ul>
@@ -513,11 +515,11 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="simplendarray-part-1-a-simple-cuda-accelerated-array-library">
+                   <section class="tex2jax_ignore mathjax_ignore" id="simplendarray-part-1-a-simple-cuda-accelerated-array-library">
 <h1>SimpleNDArray Part 1 - A Simple CUDA-Accelerated Array Library<a class="headerlink" href="#simplendarray-part-1-a-simple-cuda-accelerated-array-library" title="Link to this heading">#</a></h1>
 <p>SimpleNDArray is a zero-dependency<a class="footnote-reference brackets" href="#deps" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, CUDA-accelerated array library for Python.</p>
 </section>
-<section id="related-projects">
+<section class="tex2jax_ignore mathjax_ignore" id="related-projects">
 <h1>Related Projects<a class="headerlink" href="#related-projects" title="Link to this heading">#</a></h1>
 <ol class="arabic simple">
 <li><p>NumPy: This is the pioneer of the strided dense multidimensional array for Python. It features dynamic dispatch (with Array API / DLPack support), strided arrays, and bindings to OpenBLAS / LAPACK for near-speed-of-light operations.</p></li>
@@ -527,7 +529,7 @@
 <li><p>JAX: Another deep learning / scientific computing library similar to pytorch but enforces functional purity and other restrictions to ensure JIT compilation can be done effectively through MLIR.</p></li>
 </ol>
 </section>
-<section id="purpose">
+<section class="tex2jax_ignore mathjax_ignore" id="purpose">
 <h1>Purpose<a class="headerlink" href="#purpose" title="Link to this heading">#</a></h1>
 <p>Previously in my undergrad, I created the <a class="reference external" href="https://vikramrangarajan.github.io/SimpleTensor/"><code class="docutils literal notranslate"><span class="pre">SimpleTensor</span></code></a> library with a friend
 which fully implemented automatic differentiation. However, it used NumPy/CuPy as the underlying array libraries to
@@ -540,7 +542,7 @@ actually learn, AI usage will be limited to only the unit tests and other boring
 at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may be a little janky / hacky,
 but it will be mine.</p>
 </section>
-<section id="roadmap">
+<section class="tex2jax_ignore mathjax_ignore" id="roadmap">
 <h1>Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">#</a></h1>
 <ul class="simple">
 <li><p>Add important array operations. Currently, element-wise is completed and reduction is a work in progress. I will add
@@ -551,7 +553,7 @@ matmuls, convolutions (probably), flash attention, and maybe other attention fun
 which wraps the <code class="docutils literal notranslate"><span class="pre">Array</span></code> class</p></li>
 </ul>
 </section>
-<section id="getting-started-the-transpiler-and-runtime">
+<section class="tex2jax_ignore mathjax_ignore" id="getting-started-the-transpiler-and-runtime">
 <h1>Getting Started: The Transpiler and Runtime<a class="headerlink" href="#getting-started-the-transpiler-and-runtime" title="Link to this heading">#</a></h1>
 <p>Since we are not writing a <em>fully</em> python-only library, we will need a way to turn our python code into
 performant C++/CUDA code. For this, I have made a Python-&gt;C transpiler using the Python typing system.</p>
@@ -5285,9 +5287,10 @@ future if I don’t use it often.</p></li>
 <li><p>I have not added define macros yet, but it seems <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is smart enough to inline these element-wise operations since these kernels get
 quite close to speed of light performance. I will investigate this later.</p></li>
 </ul>
-<p>This currently suffices for our low-level bridge. When I get to mma PTX instructions, I will likely need to add some more features to support asm volatile, but that is a bit down the line.</p>
+<p>This currently suffices for our low-level bridge. When I get to mma PTX instructions, I will likely need to add some more features to support asm volatile, but that is a bit down the line. Also, modules are hashed and cached when compiled into
+<code class="docutils literal notranslate"><span class="pre">~/.cache/simplendarray</span></code> to prevent unnecessary recompilation.</p>
 </section>
-<section id="the-buffer">
+<section class="tex2jax_ignore mathjax_ignore" id="the-buffer">
 <h1>The Buffer<a class="headerlink" href="#the-buffer" title="Link to this heading">#</a></h1>
 <p>The Buffer class(es) are necessary to declare that we have a chunk of memory for computation. SimpleNDArray has two
 buffer classes: <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> and <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>. Both have the following methods/fields:</p>
@@ -5312,7 +5315,7 @@ python typecodes.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> is called inside the <code class="docutils literal notranslate"><span class="pre">__del__</span></code> method for some basic automatic memory management. I will also have to fix this to remove the possibility of memory leaks or double frees.</p>
 <p>I will note that to call functions like <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>, and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>, the runtime from above was used to bind these to python! No cuda files were (directly) written for this.</p>
 </section>
-<section id="the-array">
+<section class="tex2jax_ignore mathjax_ignore" id="the-array">
 <h1>The Array<a class="headerlink" href="#the-array" title="Link to this heading">#</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">Array</span></code> class will be a relatively simple wrapper around the <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> classes. It will contain:</p>
 <ul class="simple">
@@ -5341,10 +5344,26 @@ As it turns out, if the array is contiguous, the memory buffer would have the el
 </section>
 <section id="strided-layout">
 <h2>Strided Layout<a class="headerlink" href="#strided-layout" title="Link to this heading">#</a></h2>
+<p>I will start this section by explaining what array strides are, if you are unfamiliar. An array dimension’s stride
+is how far you need to jump to get to the next element in that dimension. For example, in a 1d array, it would be
+the distances between elements (i.e. the distance between <code class="docutils literal notranslate"><span class="pre">arr[0]</span></code>, <code class="docutils literal notranslate"><span class="pre">arr[1]</span></code>, …). In the 2d array case, we have
+an (m, n) matrix with m rows and n columns. If it were contiguous, the strides would be (n, 1). This is because
+assuming row major order, the buffer is laid out in a flattened order as such:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1  2  3  4
+5  6  7  8    -&gt; 1 2 3 4 5 6 7 8 9 10 11 12
+9  10 11 12
+</pre></div>
+</div>
+<p>To jump from any element to 1 row below, we will need to traverse <code class="docutils literal notranslate"><span class="pre">4</span></code> elements in flat memory. This is the stride for
+the first dimension (rows). For the columns, to jump from any element to 1 column to the right, we only need to traverse
+1 element in flat memory, so the stride for the second dimension is 1. Overall, in this example, we have a shape of
+(3, 4) and strides of (4, 1).</p>
+<p>However, arrays don’t have to be nice and contiguous like this. We can have overlaps and gaps as long as they can be
+represented using this strided view.</p>
 <p>I will also note that strides (and offset) are not necessary for an N-Dimensional array library.
 We could assume an invariant that all arrays are contiguous, but this restricts us greatly.
 Mainly, every single reshape, slice, transpose, and other memory view operation would require an array copy.
-NumPy and PyTorch can perform these memory views in a zero-copy fashion. For example:</p>
+NumPy and PyTorch (and SimpleNDArray) can perform these memory views in a zero-copy fashion. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">simplendarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">Array</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Array</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
@@ -5379,13 +5398,22 @@ b stride = 16 bytes (2 elements)
 <p>By using the same memory buffer but with a different stride, we don’t have to copy the array to do this.
 Some reshapes can be done by replacing the shape and modifying the stride. A transpose involves reversing
 both the shapes and strides. A broadcast can be done by expanding the shape at the broadcast dimension from
-<code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">n</span></code> and setting the stride at that dimension to <code class="docutils literal notranslate"><span class="pre">0</span></code>. This can speed up algorithms like convolution using <code class="docutils literal notranslate"><span class="pre">im2col</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">n</span></code> and setting the stride at that dimension to <code class="docutils literal notranslate"><span class="pre">0</span></code>. Flipping a dimension is simply negating its stride
+and increasing the offset of the array by the dimension length. The <code class="docutils literal notranslate"><span class="pre">offset</span></code> also allows us to start at any
+element in the dimension. The reason we don’t have one offset per dimension is that calculating the memory
+location of an element involves the calculation <span class="math notranslate nohighlight">\(\sum_{i=1}^D \text{ndindex}_i \cdot \text{stride}_i\)</span>. Adding
+an offset per dimension would turn this into
+<span class="math notranslate nohighlight">\(\sum_{i=1}^D (\text{ndindex}_i \cdot \text{stride}_i + \text{offset}_i)=(\sum_{i=1}^D \text{ndindex}_i \cdot \text{stride}_i) + \sum_{i=1}^D \text{offset}_i\)</span>.
+This means we can merge the offsets for all dimensions into a single offset.</p>
+<p>Stride tricks like these can eliminate expensive memcpys and speed up algorithms like convolution using <code class="docutils literal notranslate"><span class="pre">im2col</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># broadcast to (2, 2) (repeat b twice)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># Stride of 0 in dim 0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span>
 <span class="go">Array([[0.0, 2.0], [0.0, 2.0]], shape=(2, 2), strides=(0, 2), offset=0)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">T</span>
 <span class="go">Array([[0.0, 0.0], [2.0, 2.0]], shape=(2, 2), strides=(2, 0), offset=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">T</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+<span class="go">Array([[2.0, 2.0], [0.0, 0.0]], shape=(2, 2), strides=(-2, 0), offset=2)</span>
 </pre></div>
 </div>
 <p>So this is why I chose to use strides and offset.</p>
@@ -5445,6 +5473,22 @@ the reversed shape:</p>
     <span class="k">return</span> <span class="n">strides</span>
 </pre></div>
 </div>
+<p>With this, and setting <code class="docutils literal notranslate"><span class="pre">offset=0</span></code>, we can now convert a python iterable to an N-Dimensional Array! But how do we get back
+to a python object, or print its contents? We can try converting the data buffer to python, but that would be out of order
+and the wrong shape. We instead use a simple recursive algorithm using slicing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NestedIterable</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">]</span>
+    <span class="n">nested</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="c1"># Does [self[0, :, :, ...], self[1, :, :, ...], ..., self[shape[0] - 1, :, :, ...]]</span>
+        <span class="c1"># Then recursively calls to_python on each of these children, until base case reached</span>
+        <span class="n">indexed</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">nested</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indexed</span><span class="o">.</span><span class="n">to_python</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">nested</span>
+</pre></div>
+</div>
+<p>Assuming <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> is implemented correctly, this will work for any array.</p>
 </section>
 </section>
 <hr class="footnotes docutils" />

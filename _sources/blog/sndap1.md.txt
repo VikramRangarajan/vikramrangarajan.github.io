@@ -1,6 +1,7 @@
 ---
 blogpost: true
 tags: CUDA, Python
+date: Aug 19, 2026
 author: Vikram Rangarajan
 language: English
 ---
@@ -130,7 +131,8 @@ Some notes on this:
 - I have not added define macros yet, but it seems `nvcc` is smart enough to inline these element-wise operations since these kernels get
   quite close to speed of light performance. I will investigate this later.
 
-This currently suffices for our low-level bridge. When I get to mma PTX instructions, I will likely need to add some more features to support asm volatile, but that is a bit down the line.
+This currently suffices for our low-level bridge. When I get to mma PTX instructions, I will likely need to add some more features to support asm volatile, but that is a bit down the line. Also, modules are hashed and cached when compiled into
+`~/.cache/simplendarray` to prevent unnecessary recompilation.
 
 # The Buffer
 
@@ -191,10 +193,30 @@ As it turns out, if the array is contiguous, the memory buffer would have the el
 
 ## Strided Layout
 
+I will start this section by explaining what array strides are, if you are unfamiliar. An array dimension's stride
+is how far you need to jump to get to the next element in that dimension. For example, in a 1d array, it would be
+the distances between elements (i.e. the distance between `arr[0]`, `arr[1]`, ...). In the 2d array case, we have
+an (m, n) matrix with m rows and n columns. If it were contiguous, the strides would be (n, 1). This is because
+assuming row major order, the buffer is laid out in a flattened order as such:
+
+```text
+1  2  3  4
+5  6  7  8    -> 1 2 3 4 5 6 7 8 9 10 11 12
+9  10 11 12
+```
+
+To jump from any element to 1 row below, we will need to traverse `4` elements in flat memory. This is the stride for
+the first dimension (rows). For the columns, to jump from any element to 1 column to the right, we only need to traverse
+1 element in flat memory, so the stride for the second dimension is 1. Overall, in this example, we have a shape of
+(3, 4) and strides of (4, 1).
+
+However, arrays don't have to be nice and contiguous like this. We can have overlaps and gaps as long as they can be
+represented using this strided view.
+
 I will also note that strides (and offset) are not necessary for an N-Dimensional array library.
 We could assume an invariant that all arrays are contiguous, but this restricts us greatly.
 Mainly, every single reshape, slice, transpose, and other memory view operation would require an array copy.
-NumPy and PyTorch can perform these memory views in a zero-copy fashion. For example:
+NumPy and PyTorch (and SimpleNDArray) can perform these memory views in a zero-copy fashion. For example:
 
 ```python
 >>> from simplendarray import Array
@@ -234,7 +256,15 @@ b stride = 16 bytes (2 elements)
 By using the same memory buffer but with a different stride, we don't have to copy the array to do this.
 Some reshapes can be done by replacing the shape and modifying the stride. A transpose involves reversing
 both the shapes and strides. A broadcast can be done by expanding the shape at the broadcast dimension from
-`1` to `n` and setting the stride at that dimension to `0`. This can speed up algorithms like convolution using `im2col`.
+`1` to `n` and setting the stride at that dimension to `0`. Flipping a dimension is simply negating its stride
+and increasing the offset of the array by the dimension length. The `offset` also allows us to start at any
+element in the dimension. The reason we don't have one offset per dimension is that calculating the memory
+location of an element involves the calculation $\sum_{i=1}^D \text{ndindex}_i \cdot \text{stride}_i$. Adding
+an offset per dimension would turn this into 
+$\sum_{i=1}^D (\text{ndindex}_i \cdot \text{stride}_i + \text{offset}_i)=(\sum_{i=1}^D \text{ndindex}_i \cdot \text{stride}_i) + \sum_{i=1}^D \text{offset}_i$. 
+This means we can merge the offsets for all dimensions into a single offset.
+
+Stride tricks like these can eliminate expensive memcpys and speed up algorithms like convolution using `im2col`.
 
 ```python
 >>> b.shape = (2, 2)  # broadcast to (2, 2) (repeat b twice)
@@ -243,6 +273,8 @@ both the shapes and strides. A broadcast can be done by expanding the shape at t
 Array([[0.0, 2.0], [0.0, 2.0]], shape=(2, 2), strides=(0, 2), offset=0)
 >>> b.T
 Array([[0.0, 0.0], [2.0, 2.0]], shape=(2, 2), strides=(2, 0), offset=0)
+>>> b.T[::-1, :]
+Array([[2.0, 2.0], [0.0, 0.0]], shape=(2, 2), strides=(-2, 0), offset=2)
 ```
 
 So this is why I chose to use strides and offset.
@@ -305,3 +337,22 @@ def contiguous_strides(shape: tuple[int, ...]) -> tuple[int, ...]:
     strides = tuple(accumulate(shape[::-1], mul, initial=1))[-2::-1]
     return strides
 ```
+
+With this, and setting `offset=0`, we can now convert a python iterable to an N-Dimensional Array! But how do we get back
+to a python object, or print its contents? We can try converting the data buffer to python, but that would be out of order
+and the wrong shape. We instead use a simple recursive algorithm using slicing:
+
+```python
+def to_python(self) -> NestedIterable:
+    if self.ndim == 0:
+        return self.data.data[self.offset]
+    nested = []
+    for i in range(self.shape[0]):
+        # Does [self[0, :, :, ...], self[1, :, :, ...], ..., self[shape[0] - 1, :, :, ...]]
+        # Then recursively calls to_python on each of these children, until base case reached
+        indexed = self[i, *(slice(None) for _ in range(self.ndim - 1))].squeeze(0)
+        nested.append(indexed.to_python())
+    return nested
+```
+
+Assuming `__getitem__` is implemented correctly, this will work for any array.
