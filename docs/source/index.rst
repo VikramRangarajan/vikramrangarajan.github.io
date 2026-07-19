@@ -36,3 +36,7 @@ a balance of quality, speed, and compression.
 	:hidden:
 
 	resumes
+.. toctree::
+	:hidden:
+
+	blog/index

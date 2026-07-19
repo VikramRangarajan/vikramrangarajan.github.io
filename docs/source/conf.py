@@ -8,10 +8,15 @@ copyright = "2024, Vikram Rangarajan"
 author = "Vikram Rangarajan"
 
 
-extensions = ["sphinx_design"]
+extensions = ["sphinx_design", "ablog", "myst_parser", "sphinx_copybutton"]
 
 templates_path = ["_templates"]
-exclude_patterns = []
+exclude_patterns = [
+    ".github/*",
+    "README.md",
+    "LICENSE.md",
+]
+myst_update_mathjax = False
 
 
 with open(ROOT / "portfolio/portfolio.json") as f:
@@ -24,8 +29,30 @@ github = info["github"]
 google_scholar = info["google_scholar"]
 phone = f'tel:+{info["phone"]}'
 
+blog_path = "blog"
+blog_title = "Blog"
+blog_baseurl = "https://vikramrangarajan.github.io"
+blog_post_pattern = ["blog/*.rst", "blog/*.md"]
+fontawesome_included = True
+blog_authors = {
+    "Vikram Rangarajan": ("Vikram Rangarajan", "https://vikramrangarajan.github.io"),
+}
+post_auto_excerpt = 1
+
 html_theme = "pydata_sphinx_theme"
-html_sidebars = {"**": []}
+html_sidebars = {
+    "*": [],
+    "blog/*": [
+        "ablog/postcard.html",
+        "ablog/recentposts.html",
+        "ablog/tagcloud.html",
+        "ablog/categories.html",
+        "ablog/archives.html",
+        "ablog/authors.html",
+        "ablog/languages.html",
+        "ablog/locations.html",
+    ],
+}
 html_theme_options = {
     "navigation_with_keys": False,
     "navbar_end": ["theme-switcher", "navbar-icon-links"],
@@ -66,3 +93,4 @@ html_theme_options = {
 html_static_path = ["_static"]
 html_show_sphinx = False
 html_show_sourcelink = False
+html_css_files = ["css/custom.css"]
