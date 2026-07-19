@@ -517,7 +517,7 @@
                 <article class="bd-article">
                    <section class="tex2jax_ignore mathjax_ignore" id="simplendarray-part-1-a-simple-cuda-accelerated-array-library">
 <h1>SimpleNDArray Part 1 - A Simple CUDA-Accelerated Array Library<a class="headerlink" href="#simplendarray-part-1-a-simple-cuda-accelerated-array-library" title="Link to this heading">#</a></h1>
-<p>SimpleNDArray is a zero-dependency<a class="footnote-reference brackets" href="#deps" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, CUDA-accelerated array library for Python.</p>
+<p>SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.</p>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="related-projects">
 <h1>Related Projects<a class="headerlink" href="#related-projects" title="Link to this heading">#</a></h1>
@@ -533,7 +533,7 @@
 <h1>Purpose<a class="headerlink" href="#purpose" title="Link to this heading">#</a></h1>
 <p>Previously in my undergrad, I created the <a class="reference external" href="https://vikramrangarajan.github.io/SimpleTensor/"><code class="docutils literal notranslate"><span class="pre">SimpleTensor</span></code></a> library with a friend
 which fully implemented automatic differentiation. However, it used NumPy/CuPy as the underlying array libraries to
-perform the operations. I wanted to do it completely from scratch.</p>
+perform the operations. I wanted to do it completely from scratch<a class="footnote-reference brackets" href="#deps" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 <p>I created this library to ensure I fully understand CUDA and deep learning performance optimizations
 and libraries from the ground up. This includes the strided dense array construct, python C bindings,
 dynamic dispatch (a simplified version of PyTorch’s dispatch table), CUDA, and fast CUDA kernels. To make sure that I
@@ -541,6 +541,9 @@ actually learn, AI usage will be limited to only the unit tests and other boring
 <p>I am not trying to beat pytorch at performance or features (impossible) and I am not trying to beat tinygrad
 at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may be a little janky / hacky,
 but it will be mine.</p>
+<p>Also, I personally hate how every framework nowadays takes several seconds/minutes to warmup on every run because of JIT
+compilation / autotuning. This is why I wanted a simple framework where you simply define the kernels you want, compile them
+once and cache them, and just go. Even the 5 seconds it takes to import torch has gotten infuriating.</p>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="roadmap">
 <h1>Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">#</a></h1>
@@ -5417,6 +5420,44 @@ This means we can merge the offsets for all dimensions into a single offset.</p>
 </pre></div>
 </div>
 <p>So this is why I chose to use strides and offset.</p>
+<p>Thanks to strides and offsets, array indexing <a class="footnote-reference brackets" href="#nparridx" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> is relatively easy (excluding advanced indexing). My
+implementation currently requires the same number of indices as dimensions and doesn’t do broadcasting, but I
+will make it match with numpy’s behavior later (probably). It currently has support for ints and slices. For each dimension:</p>
+<ul class="simple">
+<li><p>If the index is an int <code class="docutils literal notranslate"><span class="pre">i</span></code>, the new shape at this dim will be 1. The new stride doesn’t matter (set to 0). The new offset
+will have <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">*</span> <span class="pre">stride</span></code> added on.</p></li>
+<li><p>If it is a slice <code class="docutils literal notranslate"><span class="pre">(stop,</span> <span class="pre">start,</span> <span class="pre">step)</span></code>, then the new shape for this dim will <code class="docutils literal notranslate"><span class="pre">max(0,</span> <span class="pre">ceildiv(stop</span> <span class="pre">-</span> <span class="pre">start,</span> <span class="pre">step))</span></code>. The new
+stride will be <code class="docutils literal notranslate"><span class="pre">stride</span> <span class="pre">*</span> <span class="pre">step</span></code> where <code class="docutils literal notranslate"><span class="pre">stride</span></code> is the current stride. Finally, the offset will have <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">*</span> <span class="pre">stride</span></code> added on.</p></li>
+</ul>
+<p>With this, we can implement <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">(</span><span class="n">items</span><span class="p">,)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must index the same number of dimensions as the array&quot;</span><span class="p">)</span>
+    <span class="n">new_shape</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">new_strides</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">new_offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span>
+    <span class="k">for</span> <span class="n">shape</span><span class="p">,</span> <span class="n">stride</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">item</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">shape</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">new_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">new_strides</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">new_offset</span> <span class="o">+=</span> <span class="n">stride</span> <span class="o">*</span> <span class="n">item</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Num elements in [start, stop) = stop - start</span>
+                <span class="n">new_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ceildiv</span><span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="n">step</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ceildiv</span><span class="p">(</span><span class="n">start</span> <span class="o">-</span> <span class="n">stop</span><span class="p">,</span> <span class="o">-</span><span class="n">step</span><span class="p">)))</span>
+            <span class="n">new_strides</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stride</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span>
+            <span class="n">new_offset</span> <span class="o">+=</span> <span class="n">stride</span> <span class="o">*</span> <span class="n">start</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Index must be int or slice, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_shape</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_strides</span><span class="p">),</span> <span class="n">new_offset</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="to-and-from-python-iterables">
 <h2>To and From Python Iterables<a class="headerlink" href="#to-and-from-python-iterables" title="Link to this heading">#</a></h2>
@@ -5490,12 +5531,205 @@ and the wrong shape. We instead use a simple recursive algorithm using slicing:<
 </div>
 <p>Assuming <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> is implemented correctly, this will work for any array.</p>
 </section>
+<section id="reshaping">
+<h2>Reshaping<a class="headerlink" href="#reshaping" title="Link to this heading">#</a></h2>
+<p>Reshaping is the most complex operation to deal with. This is because sometimes, reshaping can be done
+using a zero-copy memory view. Other times, it will require an explicit copy. Here is an example
+where a copy is necessary:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">simplendarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">Array</span>
+<span class="n">Array</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here are the steps:</p>
+<ul class="simple">
+<li><p>arange: [0, 1, 2, 3]. Shape: (4,), Stride: (1,)</p></li>
+<li><p>reshape: [[0, 1], [2, 3]]. Shape: (2, 2), Stride: (2, 1)</p></li>
+<li><p>transpose: [[0, 2], [1, 3]]. Shape: (2, 2), Stride: (1, 2)</p></li>
+<li><p>reshape: [0, 2, 1, 3]. Shape: (4,), Stride: ?</p></li>
+</ul>
+<p>We are trying to represent [0, 2, 1, 3] in the same 1d flat buffer as [0, 1, 2, 3] with a single stride which is
+clearly not possible (we jump 2, then -1, then 2). Therefore, we copy [0, 2, 1, 3] into a newly allocated buffer and return that.
+But how can we determine when we can and can’t do a zero-copy reshape?</p>
+<p>The way numpy determines how can be found in their source code<a class="footnote-reference brackets" href="#npyreshape" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<p>First, the squeeze out any dimensions of length 1. They have no effect on contiguity and they need special rules.</p>
+<p>Next, we must observe that we can partition both the input shape and output shape into subdimensions
+that iterate together. To explain this, I will use a few examples of (old shape, new shape) pairs.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>3    4    5
+|    |    |
+|____|    |
+  |       |
+  12      5
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>  12      5
+  |       |
+.____.    |
+|    |    |
+3    4    5
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>3   6   4   2
+|   |   |   |
+|___|___|   |
+  |   |     |
+  12  6     2
+</pre></div>
+</div>
+<p>For each group pair, the product of the shapes is the same. Iterating over the input group is equivalent
+to iterating over the output group. We just to:</p>
+<ul class="simple">
+<li><p>Find these groups sequentially going from left to right on both input and output shapes</p></li>
+<li><p>Check if these groups can be iterated contiguously of each other</p></li>
+</ul>
+<p>Here is the function in SimpleNDArray, transpiled pretty much line for line from numpy:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">reshape_strides</span><span class="p">(</span>
+    <span class="n">old_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">new_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">old_strides</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;If the reshape can be done with a zero-copy memory view, return the new strides.</span>
+<span class="sd">    Otherwise, return None. Based on numpy&#39;s _attempt_nocopy_reshape in _core/src/multiarray/shape.c&quot;&quot;&quot;</span>
+    <span class="c1"># Get rid of the length 1 dimensions</span>
+    <span class="n">squeezed</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">old_shape</span><span class="p">,</span> <span class="n">old_strides</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">old_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">squeezed</span><span class="p">)</span>
+    <span class="n">old_strides</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">squeezed</span><span class="p">)</span>
+    <span class="n">oldnd</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_shape</span><span class="p">)</span>
+    <span class="n">newnd</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_shape</span><span class="p">)</span>
+    <span class="n">numel</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="n">old_shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">numel</span> <span class="o">!=</span> <span class="n">product</span><span class="p">(</span><span class="n">new_shape</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Shapes do not share the same number of elements&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">numel</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="o">*</span> <span class="n">newnd</span>
+
+    <span class="n">oi</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">oj</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ni</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">nj</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">new_strides</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">newnd</span>
+    <span class="k">while</span> <span class="n">ni</span> <span class="o">&lt;</span> <span class="n">newnd</span> <span class="ow">and</span> <span class="n">oi</span> <span class="o">&lt;</span> <span class="n">oldnd</span><span class="p">:</span>
+        <span class="n">np</span> <span class="o">=</span> <span class="n">new_shape</span><span class="p">[</span><span class="n">ni</span><span class="p">]</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">old_shape</span><span class="p">[</span><span class="n">oi</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="n">np</span> <span class="o">!=</span> <span class="n">op</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span> <span class="o">&lt;</span> <span class="n">op</span><span class="p">:</span>
+                <span class="c1"># Misses trailing 1s, these are handled later</span>
+                <span class="n">np</span> <span class="o">*=</span> <span class="n">new_shape</span><span class="p">[</span><span class="n">nj</span><span class="p">]</span>
+                <span class="n">nj</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">op</span> <span class="o">*=</span> <span class="n">old_shape</span><span class="p">[</span><span class="n">oj</span><span class="p">]</span>
+                <span class="n">oj</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># We have now found our (input, output) group pair which is</span>
+        <span class="c1"># (old_shape[oi:oj], new_shape[ni:nj])</span>
+
+        <span class="c1"># Check whether the original axes can be combined</span>
+        <span class="k">for</span> <span class="n">ok</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">oj</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># C order, the same cumulative product rule for contiguous arrays from before</span>
+            <span class="k">if</span> <span class="n">old_strides</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span> <span class="o">!=</span> <span class="n">old_shape</span><span class="p">[</span><span class="n">ok</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">old_strides</span><span class="p">[</span><span class="n">ok</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                <span class="c1"># Not contiguous enough</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Calculate new strides for all axes currently worked with</span>
+        <span class="n">new_strides</span><span class="p">[</span><span class="n">nj</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_strides</span><span class="p">[</span><span class="n">oj</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">nk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nj</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ni</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Again, the same cumulative product rule for contiguous arrays form before</span>
+            <span class="n">new_strides</span><span class="p">[</span><span class="n">nk</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_strides</span><span class="p">[</span><span class="n">nk</span><span class="p">]</span> <span class="o">*</span> <span class="n">new_shape</span><span class="p">[</span><span class="n">nk</span><span class="p">]</span>
+        <span class="n">ni</span> <span class="o">=</span> <span class="n">nj</span>
+        <span class="n">nj</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">oi</span> <span class="o">=</span> <span class="n">oj</span>
+        <span class="n">oj</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Set strides corresponding to trailing 1s of the new shape</span>
+    <span class="k">if</span> <span class="n">ni</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">last_stride</span> <span class="o">=</span> <span class="n">new_strides</span><span class="p">[</span><span class="n">ni</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">last_stride</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">nk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ni</span><span class="p">,</span> <span class="n">newnd</span><span class="p">):</span>
+        <span class="n">new_strides</span><span class="p">[</span><span class="n">nk</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_stride</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_strides</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Good, now we know when we can do a zero-copy memory view and when we need to do a copy. But how do we do a copy?</p>
+<p>This requires a custom reshape copy element-wise kernel. How it works is we store an n-dimensional input
+index and an n-dimensional output index. Over a total of <code class="docutils literal notranslate"><span class="pre">n</span></code> iterations where <code class="docutils literal notranslate"><span class="pre">n</span></code> is the number of elements,
+we increment both the input and output index once per iteration. Here is the CPU kernel:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@element_wise_module</span><span class="o">.</span><span class="n">compile_fn</span><span class="p">(</span>
+    <span class="n">types</span><span class="o">=</span><span class="p">[</span><span class="n">SpecItem</span><span class="p">({</span><span class="s2">&quot;T&quot;</span><span class="p">:</span> <span class="n">ctype</span><span class="p">(</span><span class="n">dt</span><span class="p">)},</span> <span class="sa">f</span><span class="s2">&quot;reshape_copy_</span><span class="si">{</span><span class="n">cname</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">all_dtypes</span><span class="p">],</span> <span class="n">pybind</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">reshape_copy</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">DType</span><span class="p">](</span>
+    <span class="n">inp</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
+    <span class="n">inp_strides</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">i64</span><span class="p">],</span>
+    <span class="n">inp_shape</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">i64</span><span class="p">],</span>
+    <span class="n">inp_index</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">i64</span><span class="p">],</span>
+    <span class="n">inp_offset</span><span class="p">:</span> <span class="n">i64</span><span class="p">,</span>
+    <span class="n">inp_ndim</span><span class="p">:</span> <span class="n">i64</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
+    <span class="n">out_strides</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">i64</span><span class="p">],</span>
+    <span class="n">out_shape</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">i64</span><span class="p">],</span>
+    <span class="n">out_index</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">i64</span><span class="p">],</span>
+    <span class="n">out_offset</span><span class="p">:</span> <span class="n">i64</span><span class="p">,</span>
+    <span class="n">out_ndim</span><span class="p">:</span> <span class="n">i64</span><span class="p">,</span>
+    <span class="n">numel</span><span class="p">:</span> <span class="n">i64</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">void</span><span class="p">:</span>
+    <span class="n">inp_idx</span><span class="p">:</span> <span class="n">i64</span> <span class="o">=</span> <span class="n">inp_offset</span>
+    <span class="n">out_idx</span><span class="p">:</span> <span class="n">i64</span> <span class="o">=</span> <span class="n">out_offset</span>
+    <span class="c1"># Set inp_index and out_index to zeros to start off</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">inp_ndim</span><span class="p">):</span>
+        <span class="n">inp_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">out_ndim</span><span class="p">):</span>
+        <span class="n">out_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numel</span><span class="p">):</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">out_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="n">inp_idx</span><span class="p">]</span>
+
+        <span class="c1"># Now we increment ND index of input</span>
+        <span class="n">inp_index</span><span class="p">[</span><span class="n">inp_ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">inp_idx</span> <span class="o">+=</span> <span class="n">inp_strides</span><span class="p">[</span><span class="n">inp_ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">inp_ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">inp_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">inp_shape</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">inp_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">inp_idx</span> <span class="o">-=</span> <span class="n">inp_strides</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">inp_shape</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">inp_index</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">inp_idx</span> <span class="o">+=</span> <span class="n">inp_strides</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Increment ND index of output</span>
+        <span class="n">out_index</span><span class="p">[</span><span class="n">out_ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">out_idx</span> <span class="o">+=</span> <span class="n">out_strides</span><span class="p">[</span><span class="n">out_ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">out_ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">out_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">out_shape</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">out_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">out_idx</span> <span class="o">-=</span> <span class="n">out_strides</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">out_shape</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">out_index</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">out_idx</span> <span class="o">+=</span> <span class="n">out_strides</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For example, if we were reshaping a (4, 2) array to a (2, 2, 2) array, this would be doing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Except we are not doing ND indexing, we are calculating the pointer offsets using the input and output
+strides using <code class="docutils literal notranslate"><span class="pre">inp_idx</span></code> and <code class="docutils literal notranslate"><span class="pre">out_idx</span></code>.</p>
+</section>
 </section>
 <hr class="footnotes docutils" />
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="deps" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>SimpleNDArray requires compilers (nvcc/gcc), the nvidia toolkit, and drivers to be installed. There are also test dependencies, but those do not count.</p>
+</aside>
+<aside class="footnote brackets" id="nparridx" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>See <a class="reference external" href="https://numpy.org/doc/stable/user/basics.indexing.html">here</a></p>
+</aside>
+<aside class="footnote brackets" id="npyreshape" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>The C source can be found <a class="reference external" href="https://github.com/numpy/numpy/blob/634b4625e3b9ad55dbc9854d47ad929539c62d74/numpy/_core/src/multiarray/shape.c#L378-L471">here</a></p>
 </aside>
 </aside>
 
@@ -5541,6 +5775,7 @@ and the wrong shape. We instead use a simple recursive algorithm using slicing:<
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#row-column-major">Row / Column Major</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#strided-layout">Strided Layout</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#to-and-from-python-iterables">To and From Python Iterables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reshaping">Reshaping</a></li>
 </ul>
 </li>
 </ul>

@@ -8,7 +8,7 @@ language: English
 
 # SimpleNDArray Part 1 - A Simple CUDA-Accelerated Array Library
 
-SimpleNDArray is a zero-dependency[^deps], CUDA-accelerated array library for Python.
+SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.
 
 [^deps]: SimpleNDArray requires compilers (nvcc/gcc), the nvidia toolkit, and drivers to be installed. There are also test dependencies, but those do not count.
 
@@ -24,7 +24,7 @@ SimpleNDArray is a zero-dependency[^deps], CUDA-accelerated array library for Py
 
 Previously in my undergrad, I created the [`SimpleTensor`](https://vikramrangarajan.github.io/SimpleTensor/) library with a friend
 which fully implemented automatic differentiation. However, it used NumPy/CuPy as the underlying array libraries to
-perform the operations. I wanted to do it completely from scratch.
+perform the operations. I wanted to do it completely from scratch[^deps].
 
 I created this library to ensure I fully understand CUDA and deep learning performance optimizations
 and libraries from the ground up. This includes the strided dense array construct, python C bindings,
@@ -34,6 +34,10 @@ actually learn, AI usage will be limited to only the unit tests and other boring
 I am not trying to beat pytorch at performance or features (impossible) and I am not trying to beat tinygrad
 at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may be a little janky / hacky,
 but it will be mine.
+
+Also, I personally hate how every framework nowadays takes several seconds/minutes to warmup on every run because of JIT
+compilation / autotuning. This is why I wanted a simple framework where you simply define the kernels you want, compile them
+once and cache them, and just go. Even the 5 seconds it takes to import torch has gotten infuriating.
 
 # Roadmap
 
@@ -279,6 +283,47 @@ Array([[2.0, 2.0], [0.0, 0.0]], shape=(2, 2), strides=(-2, 0), offset=2)
 
 So this is why I chose to use strides and offset.
 
+Thanks to strides and offsets, array indexing [^nparridx] is relatively easy (excluding advanced indexing). My
+implementation currently requires the same number of indices as dimensions and doesn't do broadcasting, but I 
+will make it match with numpy's behavior later (probably). It currently has support for ints and slices. For each dimension:
+- If the index is an int `i`, the new shape at this dim will be 1. The new stride doesn't matter (set to 0). The new offset
+will have `i * stride` added on.
+- If it is a slice `(stop, start, step)`, then the new shape for this dim will `max(0, ceildiv(stop - start, step))`. The new
+stride will be `stride * step` where `stride` is the current stride. Finally, the offset will have `start * stride` added on.
+
+With this, we can implement `__getitem__`:
+
+```python
+def __getitem__(self, items: tuple[int | slice, ...] | int | slice):
+    if not isinstance(items, tuple):
+        items = (items,)
+    if len(items) != self.ndim:
+        raise ValueError("Must index the same number of dimensions as the array")
+    new_shape = []
+    new_strides = []
+    new_offset = self.offset
+    for shape, stride, item in zip(self.shape, self.strides, items):
+        if isinstance(item, int):
+            item = slice(item, item + 1).indices(shape)[0]
+            new_shape.append(1)
+            new_strides.append(0)
+            new_offset += stride * item
+        elif isinstance(item, slice):
+            start, stop, step = item.indices(shape)
+            if step > 0:
+                # Num elements in [start, stop) = stop - start
+                new_shape.append(max(0, ceildiv(stop - start, step)))
+            else:
+                new_shape.append(max(0, ceildiv(start - stop, -step)))
+            new_strides.append(stride * step)
+            new_offset += stride * start
+        else:
+            raise TypeError(f"Index must be int or slice, got {type(item).__name__}")
+    return Array(self.data, tuple(new_shape), tuple(new_strides), new_offset)
+```
+
+[^nparridx]: See [here](https://numpy.org/doc/stable/user/basics.indexing.html)
+
 ## To and From Python Iterables
 In NumPy and PyTorch, we can say something like `torch.tensor([[1, 2], [3, 4]])` and it will give us our (2, 2) array
 with strides (2, 1). To implement this, I flatten this nested python `Iterable` (in this case a list) while also getting
@@ -356,3 +401,202 @@ def to_python(self) -> NestedIterable:
 ```
 
 Assuming `__getitem__` is implemented correctly, this will work for any array.
+
+## Reshaping
+Reshaping is the most complex operation to deal with. This is because sometimes, reshaping can be done
+using a zero-copy memory view. Other times, it will require an explicit copy. Here is an example
+where a copy is necessary:
+
+```python
+from simplendarray import Array
+Array.arange(4, "f").reshape((2, 2)).T.reshape(-1)
+```
+
+Here are the steps:
+- arange: [0, 1, 2, 3]. Shape: (4,), Stride: (1,)
+- reshape: [[0, 1], [2, 3]]. Shape: (2, 2), Stride: (2, 1)
+- transpose: [[0, 2], [1, 3]]. Shape: (2, 2), Stride: (1, 2)
+- reshape: [0, 2, 1, 3]. Shape: (4,), Stride: ?
+
+We are trying to represent [0, 2, 1, 3] in the same 1d flat buffer as [0, 1, 2, 3] with a single stride which is
+clearly not possible (we jump 2, then -1, then 2). Therefore, we copy [0, 2, 1, 3] into a newly allocated buffer and return that.
+But how can we determine when we can and can't do a zero-copy reshape?
+
+The way numpy determines how can be found in their source code[^npyreshape].
+
+[^npyreshape]: The C source can be found [here](https://github.com/numpy/numpy/blob/634b4625e3b9ad55dbc9854d47ad929539c62d74/numpy/_core/src/multiarray/shape.c#L378-L471)
+
+First, the squeeze out any dimensions of length 1. They have no effect on contiguity and they need special rules.
+
+Next, we must observe that we can partition both the input shape and output shape into subdimensions
+that iterate together. To explain this, I will use a few examples of (old shape, new shape) pairs.
+
+```text
+3    4    5
+|    |    |
+|____|    |
+  |       |
+  12      5
+```
+
+```text
+  12      5
+  |       |
+.____.    |
+|    |    |
+3    4    5
+```
+
+```text
+3   6   4   2
+|   |   |   |
+|___|___|   |
+  |   |     |
+  12  6     2
+```
+
+For each group pair, the product of the shapes is the same. Iterating over the input group is equivalent
+to iterating over the output group. We just to:
+- Find these groups sequentially going from left to right on both input and output shapes
+- Check if these groups can be iterated contiguously of each other
+
+Here is the function in SimpleNDArray, transpiled pretty much line for line from numpy:
+
+```python
+def reshape_strides(
+    old_shape: tuple[int, ...], new_shape: tuple[int, ...], old_strides: tuple[int, ...]
+) -> tuple[int, ...] | None:
+    """If the reshape can be done with a zero-copy memory view, return the new strides.
+    Otherwise, return None. Based on numpy's _attempt_nocopy_reshape in _core/src/multiarray/shape.c"""
+    # Get rid of the length 1 dimensions
+    squeezed = [(x, y) for x, y in zip(old_shape, old_strides) if x != 1]
+    old_shape = tuple(p[0] for p in squeezed)
+    old_strides = tuple(p[1] for p in squeezed)
+    oldnd = len(old_shape)
+    newnd = len(new_shape)
+    numel = product(old_shape)
+    if numel != product(new_shape):
+        raise ValueError("Shapes do not share the same number of elements")
+    if numel == 0:
+        return (0,) * newnd
+
+    oi = 0
+    oj = 1
+    ni = 0
+    nj = 1
+    new_strides = [0] * newnd
+    while ni < newnd and oi < oldnd:
+        np = new_shape[ni]
+        op = old_shape[oi]
+
+        while np != op:
+            if np < op:
+                # Misses trailing 1s, these are handled later
+                np *= new_shape[nj]
+                nj += 1
+            else:
+                op *= old_shape[oj]
+                oj += 1
+        # We have now found our (input, output) group pair which is
+        # (old_shape[oi:oj], new_shape[ni:nj])
+
+        # Check whether the original axes can be combined
+        for ok in range(oi, oj - 1):
+            # C order, the same cumulative product rule for contiguous arrays from before
+            if old_strides[ok] != old_shape[ok + 1] * old_strides[ok + 1]:
+                # Not contiguous enough
+                return None
+
+        # Calculate new strides for all axes currently worked with
+        new_strides[nj - 1] = old_strides[oj - 1]
+        for nk in range(nj - 1, ni, -1):
+            # Again, the same cumulative product rule for contiguous arrays form before
+            new_strides[nk - 1] = new_strides[nk] * new_shape[nk]
+        ni = nj
+        nj += 1
+        oi = oj
+        oj += 1
+
+    # Set strides corresponding to trailing 1s of the new shape
+    if ni >= 1:
+        last_stride = new_strides[ni - 1]
+    else:
+        last_stride = 1
+    for nk in range(ni, newnd):
+        new_strides[nk] = last_stride
+
+    return tuple(new_strides)
+```
+
+Good, now we know when we can do a zero-copy memory view and when we need to do a copy. But how do we do a copy?
+
+This requires a custom reshape copy element-wise kernel. How it works is we store an n-dimensional input
+index and an n-dimensional output index. Over a total of `n` iterations where `n` is the number of elements,
+we increment both the input and output index once per iteration. Here is the CPU kernel:
+
+```python
+@element_wise_module.compile_fn(
+    types=[SpecItem({"T": ctype(dt)}, f"reshape_copy_{cname(dt)}") for dt in all_dtypes], pybind=True
+)
+def reshape_copy[T: DType](
+    inp: list[T],
+    inp_strides: list[i64],
+    inp_shape: list[i64],
+    inp_index: list[i64],
+    inp_offset: i64,
+    inp_ndim: i64,
+    out: list[T],
+    out_strides: list[i64],
+    out_shape: list[i64],
+    out_index: list[i64],
+    out_offset: i64,
+    out_ndim: i64,
+    numel: i64,
+) -> void:
+    inp_idx: i64 = inp_offset
+    out_idx: i64 = out_offset
+    # Set inp_index and out_index to zeros to start off
+    for i in range(inp_ndim):
+        inp_index[i] = 0
+    for i in range(out_ndim):
+        out_index[i] = 0
+    for i in range(numel):
+        out[out_idx] = inp[inp_idx]
+
+        # Now we increment ND index of input
+        inp_index[inp_ndim - 1] += 1
+        inp_idx += inp_strides[inp_ndim - 1]
+        for j in range(inp_ndim - 1, -1, -1):
+            if inp_index[j] == inp_shape[j]:
+                inp_index[j] = 0
+                inp_idx -= inp_strides[j] * inp_shape[j]
+                if j > 0:
+                    inp_index[j - 1] += 1
+                    inp_idx += inp_strides[j - 1]
+
+        # Increment ND index of output
+        out_index[out_ndim - 1] += 1
+        out_idx += out_strides[out_ndim - 1]
+        for j in range(out_ndim - 1, -1, -1):
+            if out_index[j] == out_shape[j]:
+                out_index[j] = 0
+                out_idx -= out_strides[j] * out_shape[j]
+                if j > 0:
+                    out_index[j - 1] += 1
+                    out_idx += out_strides[j - 1]
+```
+
+For example, if we were reshaping a (4, 2) array to a (2, 2, 2) array, this would be doing:
+```python
+output[0, 0, 0] = input[0, 0]
+output[0, 0, 1] = input[0, 1]
+output[0, 1, 0] = input[1, 0]
+output[0, 1, 1] = input[1, 1]
+output[1, 0, 0] = input[2, 0]
+output[1, 0, 1] = input[2, 1]
+output[1, 1, 0] = input[3, 0]
+output[1, 1, 1] = input[3, 1]
+```
+
+Except we are not doing ND indexing, we are calculating the pointer offsets using the input and output
+strides using `inp_idx` and `out_idx`.
