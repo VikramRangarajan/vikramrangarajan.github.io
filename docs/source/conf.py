@@ -8,7 +8,7 @@ copyright = "2024, Vikram Rangarajan"
 author = "Vikram Rangarajan"
 
 
-extensions = ["sphinx_design", "ablog", "myst_parser", "sphinx_copybutton"]
+extensions = ["sphinx_design", "ablog", "myst_parser", "sphinx_copybutton", "sphinxcontrib.mermaid"]
 
 templates_path = ["_templates"]
 exclude_patterns = [
