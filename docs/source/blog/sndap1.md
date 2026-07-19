@@ -1,7 +1,6 @@
 ---
 blogpost: true
 tags: CUDA, Python
-date: Jul 19, 2026
 author: Vikram Rangarajan
 language: English
 ---
@@ -32,7 +31,8 @@ dynamic dispatch (a simplified version of PyTorch's dispatch table), CUDA, and f
 actually learn, AI usage will be limited to only the unit tests and other boring tasks (like fighting pyrefly).
 
 I am not trying to beat pytorch at performance or features (impossible) and I am not trying to beat tinygrad
-at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end.
+at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may be a little janky / hacky,
+but it will be mine.
 
 # Roadmap
 
