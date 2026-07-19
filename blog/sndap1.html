@@ -529,11 +529,27 @@
 </section>
 <section id="purpose">
 <h1>Purpose<a class="headerlink" href="#purpose" title="Link to this heading">#</a></h1>
+<p>Previously in my undergrad, I created the <a class="reference external" href="https://vikramrangarajan.github.io/SimpleTensor/"><code class="docutils literal notranslate"><span class="pre">SimpleTensor</span></code></a> library with a friend
+which fully implemented automatic differentiation. However, it used NumPy/CuPy as the underlying array libraries to
+perform the operations. I wanted to do it completely from scratch.</p>
 <p>I created this library to ensure I fully understand CUDA and deep learning performance optimizations
 and libraries from the ground up. This includes the strided dense array construct, python C bindings,
-dynamic dispatch (a simplified version of PyTorch’s dispatch table), CUDA, and fast CUDA kernels.</p>
+dynamic dispatch (a simplified version of PyTorch’s dispatch table), CUDA, and fast CUDA kernels. To make sure that I
+actually learn, AI usage will be limited to only the unit tests and other boring tasks (like fighting pyrefly).</p>
 <p>I am not trying to beat pytorch at performance or features (impossible) and I am not trying to beat tinygrad
-at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end.</p>
+at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may be a little janky / hacky,
+but it will be mine.</p>
+</section>
+<section id="roadmap">
+<h1>Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>Add important array operations. Currently, element-wise is completed and reduction is a work in progress. I will add
+matmuls, convolutions (probably), flash attention, and maybe other attention functions (linear, sparse, etc.)</p></li>
+<li><p>Clean up codebase (unify <code class="docutils literal notranslate"><span class="pre">Buffer</span></code>/<code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, simpler dispatch, etc.)</p></li>
+<li><p>Add benchmark sweep vs. PyTorch Cuda on Ampere (maybe hopper and/or blackwell down the line)</p></li>
+<li><p>Add automatic differentiation (see <a class="reference external" href="https://vikramrangarajan.github.io/SimpleTensor/">SimpleTensor</a>) using a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> class
+which wraps the <code class="docutils literal notranslate"><span class="pre">Array</span></code> class</p></li>
+</ul>
 </section>
 <section id="getting-started-the-transpiler-and-runtime">
 <h1>Getting Started: The Transpiler and Runtime<a class="headerlink" href="#getting-started-the-transpiler-and-runtime" title="Link to this heading">#</a></h1>
@@ -574,7 +590,7 @@ performant C++/CUDA code. For this, I have made a Python-&gt;C transpiler using 
 <li><p>Generated python bindings automatically</p></li>
 <li><p>Compiled the Python C extension into a <code class="docutils literal notranslate"><span class="pre">.so</span></code> file</p></li>
 <li><p>Imported this extension at runtime</p></li>
-<li><p>Ran the vector sum on a python array (the built-in python array module, if you are not aware)</p></li>
+<li><p>Ran the vector sum on a python array (the built-in python array module, if you are not aware) and compared it to the ground truth</p></li>
 </ul>
 <p>Let’s take a look at the generated C code:</p>
 <details>
@@ -5269,6 +5285,167 @@ future if I don’t use it often.</p></li>
 <li><p>I have not added define macros yet, but it seems <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is smart enough to inline these element-wise operations since these kernels get
 quite close to speed of light performance. I will investigate this later.</p></li>
 </ul>
+<p>This currently suffices for our low-level bridge. When I get to mma PTX instructions, I will likely need to add some more features to support asm volatile, but that is a bit down the line.</p>
+</section>
+<section id="the-buffer">
+<h1>The Buffer<a class="headerlink" href="#the-buffer" title="Link to this heading">#</a></h1>
+<p>The Buffer class(es) are necessary to declare that we have a chunk of memory for computation. SimpleNDArray has two
+buffer classes: <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> and <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>. Both have the following methods/fields:</p>
+<ul class="simple">
+<li><p>Constructor</p></li>
+<li><p>classmethod <code class="docutils literal notranslate"><span class="pre">empty</span></code> (<code class="docutils literal notranslate"><span class="pre">Buffer</span></code> currently fills it with all zeros)</p></li>
+<li><p>classmethod <code class="docutils literal notranslate"><span class="pre">from_iterable</span></code>, turns a python iterable into a contiguous C buffer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: always a CPU array. If called on <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, a d2h copy is done.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> (int): Memory address of buffer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">typecode</span></code> (str): The <code class="docutils literal notranslate"><span class="pre">array</span></code> module typecode to specify the dtype of the buffer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_bytes</span></code> (int): Self explanatory.</p></li>
+</ul>
+<p>Currently, the constructors do not agree for <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> and <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code> because of the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Buffer</span></code>’s constructor takes in a python <code class="docutils literal notranslate"><span class="pre">array</span></code> and stores it as the <code class="docutils literal notranslate"><span class="pre">data</span></code> field</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>’s constructor takes in a <code class="docutils literal notranslate"><span class="pre">size</span></code> and <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and calls <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>, so <code class="docutils literal notranslate"><span class="pre">BufferCuda.empty</span></code> just calls the constructor</p></li>
+<li><p>The python array module does not provide the ability to create an empty array so the constructor and empty methods are different</p></li>
+</ul>
+<p>In the future, I hope to clean these 2 classes up. Ideally, I remove the dependency on the array module and the use of typecodes,
+as it has cluttered my codebase and will be difficult to use custom types (e.g. bfloat16, float16) which don’t have associated
+python typecodes.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> is called inside the <code class="docutils literal notranslate"><span class="pre">__del__</span></code> method for some basic automatic memory management. I will also have to fix this to remove the possibility of memory leaks or double frees.</p>
+<p>I will note that to call functions like <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>, and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>, the runtime from above was used to bind these to python! No cuda files were (directly) written for this.</p>
+</section>
+<section id="the-array">
+<h1>The Array<a class="headerlink" href="#the-array" title="Link to this heading">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">Array</span></code> class will be a relatively simple wrapper around the <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> classes. It will contain:</p>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">data</span></code> buffer</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">shape</span></code>, which will be a tuple of ints</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strides</span></code>, which will be a tuple of ints of the same length as <code class="docutils literal notranslate"><span class="pre">shape</span></code></p></li>
+<li><p>An offset, indicating where the first element of the array will be in the buffer</p></li>
+</ul>
+<p>We can derive other numpy/torch array properties from these:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ndim</span></code>=<code class="docutils literal notranslate"><span class="pre">len(shape)</span></code>=<code class="docutils literal notranslate"><span class="pre">len(strides)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numel()</span></code>/<code class="docutils literal notranslate"><span class="pre">size</span></code> = <code class="docutils literal notranslate"><span class="pre">product(shape)</span></code></p></li>
+</ul>
+<p>This is the dense strided array layout which is used in every deep learning / array library today.</p>
+<section id="row-column-major">
+<h2>Row / Column Major<a class="headerlink" href="#row-column-major" title="Link to this heading">#</a></h2>
+<p>I will also note that <code class="docutils literal notranslate"><span class="pre">SimpleNDArray</span></code> will be C/row-major order only, similar to PyTorch.
+Adding Fortran/column-major support will be complex and unnecessary.</p>
+<p>Row major indicates that our indices will start counting from the right. For example, if we
+have an array of shape (2, 3), our indices to traverse this array in order would be
+(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2).</p>
+<p>If we instead use column major order, the indices would be
+(0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2).
+As it turns out, if the array is contiguous, the memory buffer would have the elements at these indices in these exact orders
+(depending on whether it is row / column major). But since we have a strided layout, contiguity cannot be assumed.</p>
+</section>
+<section id="strided-layout">
+<h2>Strided Layout<a class="headerlink" href="#strided-layout" title="Link to this heading">#</a></h2>
+<p>I will also note that strides (and offset) are not necessary for an N-Dimensional array library.
+We could assume an invariant that all arrays are contiguous, but this restricts us greatly.
+Mainly, every single reshape, slice, transpose, and other memory view operation would require an array copy.
+NumPy and PyTorch can perform these memory views in a zero-copy fashion. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">simplendarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">Array</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Array</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">Array([0.0, 1.0, 2.0, 3.0], shape=(4,), strides=(1,), offset=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span>
+<span class="go">Array([0.0, 2.0], shape=(2,), strides=(2,), offset=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">address</span>
+<span class="go">4310996048</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">address</span>
+<span class="go">4310996048</span>
+</pre></div>
+</div>
+<p>As you can see, both a and b’s data buffers share the same memory address because b is a zero-copy memory view of a.
+b just has double the stride that a has, allowing it to jump by 2 elements for each index increase.</p>
+<p>I had ChatGPT make a good ascii art to show this. I added the bytes because numpy’s strides are multiplied by the <code class="docutils literal notranslate"><span class="pre">itemsize</span></code>
+as the strides are in bytes, not elements.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>            a[0]               a[1]              a[2]              a[3]
+              |&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|
+              v                 v                 v                 v
+Buffer:  +-------------+-----------------+-----------------+-------------+
+         |     1       |        2        |        3        |      4      |
+         +-------------+-----------------+-----------------+-------------+
+              ^                                   ^
+              |&lt;---------- 16 bytes -------------&gt;|
+            b[0]                                 b[1]
+
+a stride = 8 bytes (1 element)
+b stride = 16 bytes (2 elements)
+</pre></div>
+</div>
+<p>By using the same memory buffer but with a different stride, we don’t have to copy the array to do this.
+Some reshapes can be done by replacing the shape and modifying the stride. A transpose involves reversing
+both the shapes and strides. A broadcast can be done by expanding the shape at the broadcast dimension from
+<code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">n</span></code> and setting the stride at that dimension to <code class="docutils literal notranslate"><span class="pre">0</span></code>. This can speed up algorithms like convolution using <code class="docutils literal notranslate"><span class="pre">im2col</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># broadcast to (2, 2) (repeat b twice)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># Stride of 0 in dim 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span>
+<span class="go">Array([[0.0, 2.0], [0.0, 2.0]], shape=(2, 2), strides=(0, 2), offset=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">T</span>
+<span class="go">Array([[0.0, 0.0], [2.0, 2.0]], shape=(2, 2), strides=(2, 0), offset=0)</span>
+</pre></div>
+</div>
+<p>So this is why I chose to use strides and offset.</p>
+</section>
+<section id="to-and-from-python-iterables">
+<h2>To and From Python Iterables<a class="headerlink" href="#to-and-from-python-iterables" title="Link to this heading">#</a></h2>
+<p>In NumPy and PyTorch, we can say something like <code class="docutils literal notranslate"><span class="pre">torch.tensor([[1,</span> <span class="pre">2],</span> <span class="pre">[3,</span> <span class="pre">4]])</span></code> and it will give us our (2, 2) array
+with strides (2, 1). To implement this, I flatten this nested python <code class="docutils literal notranslate"><span class="pre">Iterable</span></code> (in this case a list) while also getting
+the shape. We also want to ensure this iterable is not jagged (for example, [[1, 2, 3], [4, 5]] is invalid). The code
+for this is as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span> <span class="n">Scalar</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span>
+<span class="nb">type</span> <span class="n">NestedIterable</span> <span class="o">=</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Scalar</span><span class="p">]</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">NestedIterable</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">flatten_and_get_shape</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">NestedIterable</span> <span class="o">|</span> <span class="n">Scalar</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Scalar</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>  <span class="c1"># Returns a tuple of (flat list, shape tuple)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="p">],</span> <span class="p">()</span>  <span class="c1"># scalars have shape ()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>  <span class="c1"># empty array / buffer with shape (0,)</span>
+
+    <span class="n">flat</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Scalar</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">cur_dim</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">first_elem</span> <span class="o">=</span> <span class="n">cur_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first_elem</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+        <span class="n">first_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">first_elem</span><span class="p">)</span>
+        <span class="n">first_flat</span><span class="p">,</span> <span class="n">first_shape</span> <span class="o">=</span> <span class="n">flatten_and_get_shape</span><span class="p">(</span><span class="n">first_list</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">first_flat</span><span class="p">,</span> <span class="n">first_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">first_elem</span><span class="p">],</span> <span class="p">()</span>
+    <span class="n">flat</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">first_flat</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cur_dim</span><span class="p">),</span> <span class="o">*</span><span class="n">first_shape</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cur_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">sub_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">sub_flat</span><span class="p">,</span> <span class="n">sub_shape</span> <span class="o">=</span> <span class="n">flatten_and_get_shape</span><span class="p">(</span><span class="n">sub_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sub_flat</span><span class="p">,</span> <span class="n">sub_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">],</span> <span class="p">()</span>
+        <span class="k">if</span> <span class="n">sub_shape</span> <span class="o">!=</span> <span class="n">first_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Jagged array: expected shape </span><span class="si">{</span><span class="n">first_shape</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">sub_shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">flat</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sub_flat</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">flat</span><span class="p">,</span> <span class="n">shape</span>
+</pre></div>
+</div>
+<p>We can then pass this flat list into a python <code class="docutils literal notranslate"><span class="pre">array</span></code>, and we now have our shape. But what about our stride?</p>
+<p>For contiguous arrays, the stride will always be a cumulative product of the shape. For example, a contiguous array
+of shape (3, 4, 5, 6) will have strides (4*5*6, 5*6, 6, 1). This is the reversed exclusive cumulative product of
+the reversed shape:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">accumulate</span>  <span class="c1"># aka associative scan, cumulative op (cumsum, cumprod, generic)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">mul</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">contiguous_strides</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="n">strides</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">accumulate</span><span class="p">(</span><span class="n">shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mul</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">1</span><span class="p">))[</span><span class="o">-</span><span class="mi">2</span><span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">strides</span>
+</pre></div>
+</div>
+</section>
 </section>
 <hr class="footnotes docutils" />
 <aside class="footnote-list brackets">
@@ -5313,7 +5490,15 @@ quite close to speed of light performance. I will investigate this later.</p></l
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">SimpleNDArray Part 1 - A Simple CUDA-Accelerated Array Library</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#related-projects">Related Projects</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#purpose">Purpose</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#roadmap">Roadmap</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started-the-transpiler-and-runtime">Getting Started: The Transpiler and Runtime</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-buffer">The Buffer</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-array">The Array</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#row-column-major">Row / Column Major</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#strided-layout">Strided Layout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#to-and-from-python-iterables">To and From Python Iterables</a></li>
+</ul>
+</li>
 </ul>
 
   </nav></div>
