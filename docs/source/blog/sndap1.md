@@ -1,7 +1,7 @@
 ---
 blogpost: true
 tags: CUDA, Python
-date: Aug 19, 2026
+date: Jul 20, 2026
 author: Vikram Rangarajan
 language: English
 ---
