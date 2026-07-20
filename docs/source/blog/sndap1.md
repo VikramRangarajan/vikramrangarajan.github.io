@@ -12,6 +12,11 @@ SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.
 
 [^deps]: SimpleNDArray requires compilers (nvcc/gcc), the nvidia toolkit, and drivers to be installed. There are also test dependencies, but those do not count.
 
+:::{caution}
+SimpleNDArray is in active early development. There will be bugs, API changes, and performance improvements as I
+implement more features.
+:::
+
 # Related Projects
 
 1. NumPy: This is the pioneer of the strided dense multidimensional array for Python. It features dynamic dispatch (with Array API / DLPack support), strided arrays, and bindings to OpenBLAS / LAPACK for near-speed-of-light operations.
@@ -37,7 +42,8 @@ but it will be mine.
 
 Also, I personally hate how every framework nowadays takes several seconds/minutes to warmup on every run because of JIT
 compilation / autotuning. This is why I wanted a simple framework where you simply define the kernels you want, compile them
-once and cache them, and just go. Even the 5 seconds it takes to import torch has gotten infuriating.
+once and cache them, and just go. Even the 5 seconds it takes to import torch has gotten infuriating. There's also the 5GB+ of
+packages that need to be installed to use any of these libraries which is far from ideal.
 
 # Roadmap
 
@@ -47,6 +53,62 @@ once and cache them, and just go. Even the 5 seconds it takes to import torch ha
 - Add benchmark sweep vs. PyTorch Cuda on Ampere (maybe hopper and/or blackwell down the line)
 - Add automatic differentiation (see [SimpleTensor](https://vikramrangarajan.github.io/SimpleTensor/)) using a `Tensor` class
   which wraps the `Array` class
+- Add distributed support (MPI collective ops via NCCL / custom implementations).
+- I will likely not be exploring JIT compilation / kernel generation / autotuning too much, but I am not sure yet. Making my own
+  triton + torch.compile from scratch would likely be a much larger project than this one.
+
+# Quick Overview
+
+
+```{mermaid}
+---
+title: SimpleNDArray Architecture
+zoom: true
+---
+graph TB
+  User(["User API"])
+
+  subgraph ArrayLayer["Array Layer"]
+    direction LR
+    FC["Array.relu() .\_\_add\_\_() .arange() .reshape()"]
+    A["Array
+data: Buffer | BufferCuda
+shape, stride, offset"]
+  end
+
+  subgraph Storage["Storage"]
+    B["Buffer (CPU) - array.array"]
+    BC["BufferCuda (GPU) - cudaMalloc"]
+  end
+
+  PK["Python Modules and Kernels
+@module.compile_fn(...) 
+def my_kernel(...)"]
+  AST["AST Parse + Type Substitution"]
+  RT["Runtime: .c/.cu generation
+gcc/nvcc -> .so"]
+  CM["Compiled Modules"]
+  D["(DType, Device, Kernel) Dispatch"]
+  K["Kernel Call
+arange_int(out, offset, stride, n)"]
+
+  User --> FC
+  User --> PK
+  FC --> A
+  A --> Storage
+  Storage --> D
+  A --> D
+
+  PK --> AST --> RT --> CM
+  D --> CM
+  CM --> K
+```
+
+SimpleNDArray is meant to be similar to pytorch in terms of API and usage. You register your custom kernels or just
+use the ones provided. You can then use the array class for all of your n-dimensional array needs, and you will then
+get automatic kernel dispatching to construct your output. SimpleNDArray will provide all of the standard functions
+like element-wise (+, -, *, /, log, exp, relu, etc.), reductions (sum, mean, max, min), products (matmul, conv, etc.),
+flash attention, and more.
 
 # Getting Started: The Transpiler and Runtime
 
@@ -243,15 +305,15 @@ I had ChatGPT make a good ascii art to show this. I added the bytes because nump
 as the strides are in bytes, not elements.
 
 ```text
-            a[0]               a[1]              a[2]              a[3]
-              |<--- 8 bytes --->|<--- 8 bytes --->|<--- 8 bytes --->|
-              v                 v                 v                 v
-Buffer:  +-------------+-----------------+-----------------+-------------+
-         |     1       |        2        |        3        |      4      |
-         +-------------+-----------------+-----------------+-------------+
-              ^                                   ^
-              |<---------- 16 bytes ------------->|
-            b[0]                                 b[1]
+                 a[0]              a[1]              a[2]              a[3]
+                  |<--- 8 bytes --->|<--- 8 bytes --->|<--- 8 bytes --->|
+                  v                 v                 v                 v
+Buffer:  +-----------------+-----------------+-----------------+-----------------+
+         |        0        |        1        |        2        |        3        |
+         +-----------------+-----------------+-----------------+-----------------+
+                  ^                                   ^
+                  |<----------- 16 bytes ------------>|
+                b[0]                                 b[1]
 
 a stride = 8 bytes (1 element)
 b stride = 16 bytes (2 elements)
@@ -284,10 +346,11 @@ Array([[2.0, 2.0], [0.0, 0.0]], shape=(2, 2), strides=(-2, 0), offset=2)
 So this is why I chose to use strides and offset.
 
 Thanks to strides and offsets, array indexing [^nparridx] is relatively easy (excluding advanced indexing). My
-implementation currently requires the same number of indices as dimensions and doesn't do broadcasting, but I 
-will make it match with numpy's behavior later (probably). It currently has support for ints and slices. For each dimension:
-- If the index is an int `i`, the new shape at this dim will be 1. The new stride doesn't matter (set to 0). The new offset
-will have `i * stride` added on.
+implementation currently requires the same number of indices as dimensions, doesn't do broadcasting, and doesn't squeeze
+integer index dimensions, but I  will make it match with numpy's behavior later (probably). 
+It currently has support for ints and slices. For each dimension:
+- If the index is an int `i`, the new shape at this dim will be 1 (unlike numpy/torch which squeeze the dimension). 
+The new stride doesn't matter (set to 0). The new offset will have `i * stride` added on.
 - If it is a slice `(stop, start, step)`, then the new shape for this dim will `max(0, ceildiv(stop - start, step))`. The new
 stride will be `stride * step` where `stride` is the current stride. Finally, the offset will have `start * stride` added on.
 
@@ -600,3 +663,22 @@ output[1, 1, 1] = input[3, 1]
 
 Except we are not doing ND indexing, we are calculating the pointer offsets using the input and output
 strides using `inp_idx` and `out_idx`.
+
+Sidenote: Even though this is an element-wise kernel, the CUDA kernel for this operation does not achieve
+anywhere close to speed of light performance like the other element-wise kernels because of the overhead
+of the n-dimensional indexing and pointer offset calculations. I will attempt to improve this in the future.
+
+## Kernels and Dispatch
+
+The runtime has given me access to generics, but now we need to dynamically dispatch the correct `(kernel, dtype, device)`
+tuple for any arbitrary array.
+
+PyTorch, as a reference, has an extremely complex dispatch engine which covers their `(kernel, dtype, device, layout, backend)`,
+autograd, autocast, JIT compilation, \_\_torch_function\_\_, \_\_torch_dispatch\_\_, fallback, and more. A great blog from Edward Yang in 2020
+talks about the pytorch dispatch engine in detail (but is almost certainly out of date now)[^dispatchblog1].
+
+I keep it simple. I group similar operations together in `PythonModule`s (element-wise, reduction, mm, conv, etc.). I have one
+`PythonModule` per device type (cpu, cuda), and each `PythonModule` function has type generic functions for all covered dtypes.
+I then use a dispatch dictionary to get the correct function. It's simple enough, and it works for my use case.
+
+[^dispatchblog1]: Blog is [here](https://blog.ezyang.com/2020/09/lets-talk-about-the-pytorch-dispatcher/).

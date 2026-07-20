@@ -16,7 +16,7 @@ exclude_patterns = [
     "README.md",
     "LICENSE.md",
 ]
-myst_enable_extensions = ["dollarmath", "amsmath"]
+myst_enable_extensions = ["colon_fence", "dollarmath", "amsmath"]
 
 
 with open(ROOT / "portfolio/portfolio.json") as f:
