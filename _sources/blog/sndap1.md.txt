@@ -10,7 +10,7 @@ language: English
 
 SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.
 
-[^deps]: SimpleNDArray requires compilers (nvcc/gcc), the nvidia toolkit, and drivers to be installed. There are also test dependencies, but those do not count.
+[^deps]: SimpleNDArray requires compilers (nvcc/gcc), the NVIDIA CUDA Toolkit, and drivers to be installed. There are also test dependencies, but those do not count.
 
 :::{caution}
 SimpleNDArray is in active early development. There will be bugs, API changes, and performance improvements as I
@@ -20,10 +20,11 @@ implement more features.
 # Related Projects
 
 1. NumPy: This is the pioneer of the strided dense multidimensional array for Python. It features dynamic dispatch (with Array API / DLPack support), strided arrays, and bindings to OpenBLAS / LAPACK for near-speed-of-light operations.
-2. CuPy: Similar to NumPy, but extends its scope to fast GPU implementations of matrix operations, a drop-in numpy/scipy API, and distributed arrays.
+2. CuPy: Similar to NumPy, but extends its scope to fast GPU implementations of matrix operations, a drop-in NumPy/scipy API, and distributed arrays.
 3. PyTorch: Currently the de facto deep learning library. PyTorch includes features like different array layouts (dense, sparse, jagged), accelerator backends (cpu, cuda, rocm, xpu, tpu, etc.), automatic differentiation, deep learning features (modules, operations, optimizers, data loaders, etc.), and JIT compilation.
-4. tinygrad: Also a simple, python-based zero-dependency deep learning library with features similar to PyTorch/JAX, but with fully lazy tensors and JIT compilation all the way down.
-5. JAX: Another deep learning / scientific computing library similar to pytorch but enforces functional purity and other restrictions to ensure JIT compilation can be done effectively through MLIR.
+4. tinygrad: Also a simple, Python-based zero-dependency deep learning library with features similar to PyTorch/JAX, but with fully lazy tensors and JIT compilation all the way down.
+5. JAX: Another deep learning / scientific computing library similar to PyTorch but enforces functional purity and other restrictions to ensure JIT compilation can be done effectively through MLIR. Also has cool features like higher order gradients,
+JVP, vmap, pmap, etc.
 
 # Purpose
 
@@ -32,13 +33,13 @@ which fully implemented automatic differentiation. However, it used NumPy/CuPy a
 perform the operations. I wanted to do it completely from scratch[^deps].
 
 I created this library to ensure I fully understand CUDA and deep learning performance optimizations
-and libraries from the ground up. This includes the strided dense array construct, python C bindings,
+and libraries from the ground up. This includes the strided dense array construct, Python C bindings,
 dynamic dispatch (a simplified version of PyTorch's dispatch table), CUDA, and fast CUDA kernels. To make sure that I
 actually learn, AI usage will be limited to only the unit tests and other boring tasks (like fighting pyrefly).
 
-I am not trying to beat pytorch at performance or features (impossible) and I am not trying to beat tinygrad
-at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may be a little janky / hacky,
-but it will be mine.
+I am not trying to beat PyTorch at performance or features (impossible) and I am not trying to beat tinygrad
+at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may not be as polished as
+production libraries, but its purpose is to help me learn from the ground up.
 
 Also, I personally hate how every framework nowadays takes several seconds/minutes to warmup on every run because of JIT
 compilation / autotuning. This is why I wanted a simple framework where you simply define the kernels you want, compile them
@@ -48,7 +49,7 @@ packages that need to be installed to use any of these libraries which is far fr
 # Roadmap
 
 - Add important array operations. Currently, element-wise is completed and reduction is a work in progress. I will add
-  matmuls, convolutions (probably), flash attention, and maybe other attention functions (linear, sparse, etc.)
+  matmuls, convolutions, flash attention, and maybe other attention functions (linear, sparse, etc.)
 - Clean up codebase (unify `Buffer`/`BufferCuda`, simpler dispatch, etc.)
 - Add benchmark sweep vs. PyTorch Cuda on Ampere (maybe hopper and/or blackwell down the line)
 - Add automatic differentiation (see [SimpleTensor](https://vikramrangarajan.github.io/SimpleTensor/)) using a `Tensor` class
@@ -104,16 +105,17 @@ arange_int(out, offset, stride, n)"]
   CM --> K
 ```
 
-SimpleNDArray is meant to be similar to pytorch in terms of API and usage. You register your custom kernels or just
-use the ones provided. You can then use the array class for all of your n-dimensional array needs, and you will then
-get automatic kernel dispatching to construct your output. SimpleNDArray will provide all of the standard functions
-like element-wise (+, -, *, /, log, exp, relu, etc.), reductions (sum, mean, max, min), products (matmul, conv, etc.),
-flash attention, and more.
+SimpleNDArray provides a PyTorch-like API, but is built on fully custom CUDA kernels and a custom runtime. 
+You can register your custom kernels entirely in Python or just use the ones provided. Operations on these 
+`Array`s will be automatically dispatched to the appropriate kernel based on the array's device and dtype.
+SimpleNDArray will provide all of the standard functions like element-wise (+, -, *, /, log, exp, relu, etc.), 
+reductions (sum, mean, max, min, etc.), products (matmul, conv, etc.), flash attention, and more. All without
+any external dependencies.
 
 # Getting Started: The Transpiler and Runtime
 
-Since we are not writing a _fully_ python-only library, we will need a way to turn our python code into
-performant C++/CUDA code. For this, I have made a Python->C transpiler using the Python typing system.
+Since we are not writing a _fully_ Python-only library, we will need a way to turn our Python code into
+performant C++/CUDA code. For this, I have made a Python->C/CUDA transpiler using the Python typing system.
 
 Here is an example:
 
@@ -128,13 +130,13 @@ array('i', [15])
 15
 ```
 
-This python script did the following things:
+This Python script did the following things:
 
-- JIT transpiled a simple vector_sum function into C
-- Generated python bindings automatically
+- Transpiled a simple vector_sum function into C at runtime
+- Generated Python bindings automatically
 - Compiled the Python C extension into a `.so` file
 - Imported this extension at runtime
-- Ran the vector sum on a python array (the built-in python array module, if you are not aware) and compared it to the ground truth
+- Ran the vector sum on a Python array (the built-in Python array module, if you are not aware) and compared it to the ground truth
 
 Let's take a look at the generated C code:
 
@@ -147,23 +149,23 @@ Let's take a look at the generated C code:
 
 </details>
 
-This gives us a good starting point for writing cuda kernels in python without external python DSLs like
+This gives us a good starting point for writing CUDA kernels in Python without external Python DSLs like
 triton, CuTeDSL, helion, etc.
 
-This transpiler uses the python `ast` module to:
+This transpiler uses the Python `ast` module to:
 
 - Gather type hints for every variable and translate them into a C type
-- Turn python constructs (loops, conditionals, operations, etc.) into their C equivalent
-- Automatically generate python bindings to these C functions (set `pybind=True`)
+- Turn Python constructs (loops, conditionals, operations, etc.) into their C equivalent
+- Automatically generate Python bindings to these C functions (set `pybind=True`)
 
-Note that I chose the python `list` type to translate directly to a `pointer` type because of the same indexing semantics. The `arr.buffer_info()[0]` gives the memory address of the start of the array as a python `int`, which converted to an `unsigned long long` (u64) in the python binding, and is finally passed into the `vector_sum` binding as an `int *`.
+Note that I chose the Python `list` type to translate directly to a `pointer` type because of the same indexing semantics. The `arr.buffer_info()[0]` gives the memory address of the start of the array as a Python `int`, which converted to an `unsigned long long` (u64) in the Python binding, and is finally passed into the `vector_sum` binding as an `int *`.
 
 However, this is not enough to write performant CUDA kernels. For example, how do we declare shared memory or
 static sized arrays? What about function attributes like `static`, `__global__`, `__device__`, etc.?
 
-The python type system does not support this. For function attributes, the closest thing we have is `async def`, and we cannot add our own keywords. So for function attributes, we define them in `mod.compile_fn(..., c_attrs=[...])`. For variable attributes and arrays, we can use `typing.Annotated`. The transpiler can find these special annotations and replace them with the correct C syntax.
+The Python type system does not support this. For function attributes, the closest thing we have is `async def`, and we cannot add our own keywords. So for function attributes, we define them in `mod.compile_fn(..., c_attrs=[...])`. For variable attributes and arrays, we can use `typing.Annotated`. The transpiler can find these special annotations and replace them with the correct C syntax.
 
-Finally, I needed generic support to prevent rewriting the same kernel for every single dtype. I used python generics for this purpose. Python generics act as a string replacement as opposed to true generics. Here is a full example of all of these features being used in my cuda element wise kernels.
+Finally, I needed generic support to prevent rewriting the same kernel for every single dtype. I used Python generics for this purpose. Python generics act as a string replacement as opposed to true generics. Here is a full example of all of these features being used in my CUDA element wise kernels.
 
 <details>
 <summary>Show Python Code</summary>
@@ -187,27 +189,27 @@ And the generated CUDA code:
 
 Some notes on this:
 
-- Some of this python code, such as the `_math_id` function and all of the functions that are set to it, are purely for type hinting.
+- Some of this Python code, such as the `_math_id` function and all of the functions that are set to it, are purely for type hinting.
   The transpiler can take in a function that would otherwise cause a `NameError: name 'variable_name' is not defined`.
 - `SpecItem` is used to specify what the generic type should string-substitute as, and also specifies the final C function name.
-- The `__device__` and `__global__` functions have `pybind=False`, only the ones that can be called from host-side python have `pybind=True`
+- The `__device__` and `__global__` functions have `pybind=False`, only the ones that can be called from host-side Python have `pybind=True`
 - `from ._element_wise_cuda_stubs import _ElementWiseModuleClass` is actually an automatically generated type stub for `PythonModule`.
   It is equivalent to `PythonModule` but has runtime generated type stubs for each of the functions with `pybind=True`. I may remove this in the
   future if I don't use it often.
-- I have not added define macros yet, but it seems `nvcc` is smart enough to inline these element-wise operations since these kernels get
-  quite close to speed of light performance. I will investigate this later.
+- I have not added define macros yet, but it seems `nvcc` is smart enough to inline these element-wise operations since these 
+  kernels get quite close to speed of light memory bandwidth. I will investigate this in the next blogpost.
 
 This currently suffices for our low-level bridge. When I get to mma PTX instructions, I will likely need to add some more features to support asm volatile, but that is a bit down the line. Also, modules are hashed and cached when compiled into
 `~/.cache/simplendarray` to prevent unnecessary recompilation.
 
 # The Buffer
 
-The Buffer class(es) are necessary to declare that we have a chunk of memory for computation. SimpleNDArray has two
+The Buffer classes are necessary to declare that we have a chunk of memory for computation. SimpleNDArray has two
 buffer classes: `Buffer` and `BufferCuda`. Both have the following methods/fields:
 
 - Constructor
 - classmethod `empty` (`Buffer` currently fills it with all zeros)
-- classmethod `from_iterable`, turns a python iterable into a contiguous C buffer
+- classmethod `from_iterable`, turns a Python iterable into a contiguous C buffer
 - `data`: always a CPU array. If called on `BufferCuda`, a d2h copy is done.
 - `address` (int): Memory address of buffer
 - `typecode` (str): The `array` module typecode to specify the dtype of the buffer
@@ -215,28 +217,31 @@ buffer classes: `Buffer` and `BufferCuda`. Both have the following methods/field
 
 Currently, the constructors do not agree for `Buffer` and `BufferCuda` because of the following:
 
-- `Buffer`'s constructor takes in a python `array` and stores it as the `data` field
+- `Buffer`'s constructor takes in a Python `array` and stores it as the `data` field
 - `BufferCuda`'s constructor takes in a `size` and `dtype` and calls `cudaMalloc`, so `BufferCuda.empty` just calls the constructor
-- The python array module does not provide the ability to create an empty array so the constructor and empty methods are different
+- The Python array module does not provide the ability to create an empty array so the constructor and empty methods are different
 
 In the future, I hope to clean these 2 classes up. Ideally, I remove the dependency on the array module and the use of typecodes,
 as it has cluttered my codebase and will be difficult to use custom types (e.g. bfloat16, float16) which don't have associated
-python typecodes.
+Python typecodes.
 
+To deal with memory management, an invariant I enforced is that for every memory buffer, there will be exactly 1
+`Buffer/BufferCuda` class. This buffer class will have sole ownership of the buffer and memory views will use the
+same buffer object.
 For `BufferCuda`, `cudaFree` is called inside the `__del__` method for some basic automatic memory management. I will also have to fix this to remove the possibility of memory leaks or double frees.
 
-I will note that to call functions like `cudaMemcpy`, `cudaMalloc`, and `cudaFree`, the runtime from above was used to bind these to python! No cuda files were (directly) written for this.
+I will note that to call functions like `cudaMemcpy`, `cudaMalloc`, and `cudaFree`, the runtime from above was used to bind these to Python! No CUDA files were (directly) written for this.
 
 # The Array
 
-The `Array` class will be a relatively simple wrapper around the `Buffer` classes. It will contain:
+The `Array` class will be a relatively simple wrapper around the `Buffer` classes with extra metadata. It will contain:
 
 - A `data` buffer
 - A `shape`, which will be a tuple of ints
 - `strides`, which will be a tuple of ints of the same length as `shape`
 - An offset, indicating where the first element of the array will be in the buffer
 
-We can derive other numpy/torch array properties from these:
+We can derive other NumPy/PyTorch array properties from these:
 
 - `ndim`=`len(shape)`=`len(strides)`
 - `numel()`/`size` = `product(shape)`
@@ -301,15 +306,15 @@ Array([0.0, 2.0], shape=(2,), strides=(2,), offset=0)
 As you can see, both a and b's data buffers share the same memory address because b is a zero-copy memory view of a.
 b just has double the stride that a has, allowing it to jump by 2 elements for each index increase.
 
-I had ChatGPT make a good ascii art to show this. I added the bytes because numpy's strides are multiplied by the `itemsize`
+I had ChatGPT make a good ascii art to show this. I added the bytes because NumPy's strides are multiplied by the `itemsize`
 as the strides are in bytes, not elements.
 
 ```text
                  a[0]              a[1]              a[2]              a[3]
                   |<--- 8 bytes --->|<--- 8 bytes --->|<--- 8 bytes --->|
                   v                 v                 v                 v
-Buffer:  +-----------------+-----------------+-----------------+-----------------+
-         |        0        |        1        |        2        |        3        |
+         +-----------------+-----------------+-----------------+-----------------+
+Buffer:  |        0        |        1        |        2        |        3        |
          +-----------------+-----------------+-----------------+-----------------+
                   ^                                   ^
                   |<----------- 16 bytes ------------>|
@@ -347,14 +352,17 @@ So this is why I chose to use strides and offset.
 
 Thanks to strides and offsets, array indexing [^nparridx] is relatively easy (excluding advanced indexing). My
 implementation currently requires the same number of indices as dimensions, doesn't do broadcasting, and doesn't squeeze
-integer index dimensions, but I  will make it match with numpy's behavior later (probably). 
+integer index dimensions, but I  will make it match with NumPy's behavior. 
 It currently has support for ints and slices. For each dimension:
-- If the index is an int `i`, the new shape at this dim will be 1 (unlike numpy/torch which squeeze the dimension). 
+- If the index is an int `i`, the new shape at this dim will be 1 (unlike NumPy/torch which squeeze the dimension). 
 The new stride doesn't matter (set to 0). The new offset will have `i * stride` added on.
 - If it is a slice `(stop, start, step)`, then the new shape for this dim will `max(0, ceildiv(stop - start, step))`. The new
 stride will be `stride * step` where `stride` is the current stride. Finally, the offset will have `start * stride` added on.
 
 With this, we can implement `__getitem__`:
+
+<details>
+<summary>Show __getitem__ code</summary>
 
 ```python
 def __getitem__(self, items: tuple[int | slice, ...] | int | slice):
@@ -385,13 +393,18 @@ def __getitem__(self, items: tuple[int | slice, ...] | int | slice):
     return Array(self.data, tuple(new_shape), tuple(new_strides), new_offset)
 ```
 
+</details>
+
 [^nparridx]: See [here](https://numpy.org/doc/stable/user/basics.indexing.html)
 
 ## To and From Python Iterables
 In NumPy and PyTorch, we can say something like `torch.tensor([[1, 2], [3, 4]])` and it will give us our (2, 2) array
-with strides (2, 1). To implement this, I flatten this nested python `Iterable` (in this case a list) while also getting
+with strides (2, 1). To implement this, I flatten this nested Python `Iterable` (in this case a list) while also getting
 the shape. We also want to ensure this iterable is not jagged (for example, [[1, 2, 3], [4, 5]] is invalid). The code
 for this is as follows:
+
+<details>
+<summary>Show C code</summary>
 
 ```python
 type Scalar = int | float | bool
@@ -431,7 +444,9 @@ def flatten_and_get_shape(
     return flat, shape
 ```
 
-We can then pass this flat list into a python `array`, and we now have our shape. But what about our stride?
+</details>
+
+We can then pass this flat list into a Python `array`, and we now have our shape. But what about our stride?
 
 For contiguous arrays, the stride will always be a cumulative product of the shape. For example, a contiguous array
 of shape (3, 4, 5, 6) will have strides (4\*5\*6, 5*6, 6, 1). This is the reversed exclusive cumulative product of 
@@ -446,8 +461,8 @@ def contiguous_strides(shape: tuple[int, ...]) -> tuple[int, ...]:
     return strides
 ```
 
-With this, and setting `offset=0`, we can now convert a python iterable to an N-Dimensional Array! But how do we get back
-to a python object, or print its contents? We can try converting the data buffer to python, but that would be out of order
+With this, and setting `offset=0`, we can now convert a Python iterable to an N-Dimensional Array! But how do we get back
+to a Python object, or print its contents? We can try converting the data buffer to Python, but that would be out of order
 and the wrong shape. We instead use a simple recursive algorithm using slicing:
 
 ```python
@@ -485,7 +500,7 @@ We are trying to represent [0, 2, 1, 3] in the same 1d flat buffer as [0, 1, 2, 
 clearly not possible (we jump 2, then -1, then 2). Therefore, we copy [0, 2, 1, 3] into a newly allocated buffer and return that.
 But how can we determine when we can and can't do a zero-copy reshape?
 
-The way numpy determines how can be found in their source code[^npyreshape].
+The way NumPy determines how can be found in their source code[^npyreshape].
 
 [^npyreshape]: The C source can be found [here](https://github.com/numpy/numpy/blob/634b4625e3b9ad55dbc9854d47ad929539c62d74/numpy/_core/src/multiarray/shape.c#L378-L471)
 
@@ -523,14 +538,18 @@ to iterating over the output group. We just to:
 - Find these groups sequentially going from left to right on both input and output shapes
 - Check if these groups can be iterated contiguously of each other
 
-Here is the function in SimpleNDArray, transpiled pretty much line for line from numpy:
+Here is the function in SimpleNDArray, transpiled pretty much line for line from NumPy:
+
+
+<details>
+<summary>Show Python code</summary>
 
 ```python
 def reshape_strides(
     old_shape: tuple[int, ...], new_shape: tuple[int, ...], old_strides: tuple[int, ...]
 ) -> tuple[int, ...] | None:
     """If the reshape can be done with a zero-copy memory view, return the new strides.
-    Otherwise, return None. Based on numpy's _attempt_nocopy_reshape in _core/src/multiarray/shape.c"""
+    Otherwise, return None. Based on NumPy's _attempt_nocopy_reshape in _core/src/multiarray/shape.c"""
     # Get rid of the length 1 dimensions
     squeezed = [(x, y) for x, y in zip(old_shape, old_strides) if x != 1]
     old_shape = tuple(p[0] for p in squeezed)
@@ -591,11 +610,16 @@ def reshape_strides(
     return tuple(new_strides)
 ```
 
-Good, now we know when we can do a zero-copy memory view and when we need to do a copy. But how do we do a copy?
+</details>
+
+Now we know when we can do a zero-copy memory view and when we need to do a copy. But how do we do a copy?
 
 This requires a custom reshape copy element-wise kernel. How it works is we store an n-dimensional input
 index and an n-dimensional output index. Over a total of `n` iterations where `n` is the number of elements,
 we increment both the input and output index once per iteration. Here is the CPU kernel:
+
+<details>
+<summary>Show CPU Kernel code</summary>
 
 ```python
 @element_wise_module.compile_fn(
@@ -649,6 +673,8 @@ def reshape_copy[T: DType](
                     out_idx += out_strides[j - 1]
 ```
 
+</details>
+
 For example, if we were reshaping a (4, 2) array to a (2, 2, 2) array, this would be doing:
 ```python
 output[0, 0, 0] = input[0, 0]
@@ -665,7 +691,7 @@ Except we are not doing ND indexing, we are calculating the pointer offsets usin
 strides using `inp_idx` and `out_idx`.
 
 Sidenote: Even though this is an element-wise kernel, the CUDA kernel for this operation does not achieve
-anywhere close to speed of light performance like the other element-wise kernels because of the overhead
+anywhere close to speed of light memory bandwidth like the other element-wise kernels because of the overhead
 of the n-dimensional indexing and pointer offset calculations. I will attempt to improve this in the future.
 
 ## Kernels and Dispatch
@@ -674,11 +700,23 @@ The runtime has given me access to generics, but now we need to dynamically disp
 tuple for any arbitrary array.
 
 PyTorch, as a reference, has an extremely complex dispatch engine which covers their `(kernel, dtype, device, layout, backend)`,
-autograd, autocast, JIT compilation, \_\_torch_function\_\_, \_\_torch_dispatch\_\_, fallback, and more. A great blog from Edward Yang in 2020
-talks about the pytorch dispatch engine in detail (but is almost certainly out of date now)[^dispatchblog1].
+autograd, autocast, JIT compilation, \_\_torch_function\_\_, \_\_torch_dispatch\_\_, fallback, and more. A great blogpost from 
+Edward Yang in 2020 talks about the PyTorch dispatch engine in detail (but is almost certainly out of date now)[^dispatchblog1].
 
 I keep it simple. I group similar operations together in `PythonModule`s (element-wise, reduction, mm, conv, etc.). I have one
 `PythonModule` per device type (cpu, cuda), and each `PythonModule` function has type generic functions for all covered dtypes.
 I then use a dispatch dictionary to get the correct function. It's simple enough, and it works for my use case.
 
 [^dispatchblog1]: Blog is [here](https://blog.ezyang.com/2020/09/lets-talk-about-the-pytorch-dispatcher/).
+
+# Conclusion
+
+This is all for part 1 of this series. So far, we have covered: 
+- The Python->C/CUDA transpiler
+- The runtime which allows for cached compilation
+- Buffers and memory management
+- Strided arrays and their associated operations
+- Dynamic kernel dispatch
+
+In part 2, I will cover different kernels such as element-wise, reductions,
+and matmuls. I will also benchmark my kernels against PyTorch and the theoretical roofline on my testing hardware.

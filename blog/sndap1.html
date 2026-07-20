@@ -211,7 +211,7 @@ const runMermaid = async (rerun) => {
                                     // Apply zoom to the now-rendered diagram, matching
                                     // the decoration visible diagrams receive.
                                     if (true) {
-                                        addZoomToSvgs(d3.selectAll(".mermaid[data-zoom-id=id-6742cf5e-6ecc-44dd-88ca-ce666bb18ed4]").select(function() {
+                                        addZoomToSvgs(d3.selectAll(".mermaid[data-zoom-id=id-881caca0-84ba-4bd5-970d-4fa488306c2f]").select(function() {
                                             return this.querySelector("svg");
                                         }));
                                     }
@@ -237,7 +237,7 @@ const runMermaid = async (rerun) => {
     if (true) {
         const mermaids_to_add_zoom = 1 === -1 ? mermaids_active.length : 1;
         if(mermaids_to_add_zoom > 0) {
-            var svgs = d3.selectAll(".mermaid[data-zoom-id=id-6742cf5e-6ecc-44dd-88ca-ce666bb18ed4]").select(function() {
+            var svgs = d3.selectAll(".mermaid[data-zoom-id=id-881caca0-84ba-4bd5-970d-4fa488306c2f]").select(function() {
                 return this.querySelector("svg");
             });
             // Wait until every active (visible) diagram has rendered. Deferred
@@ -885,10 +885,11 @@ implement more features.</p>
 <h1>Related Projects<a class="headerlink" href="#related-projects" title="Link to this heading">#</a></h1>
 <ol class="arabic simple">
 <li><p>NumPy: This is the pioneer of the strided dense multidimensional array for Python. It features dynamic dispatch (with Array API / DLPack support), strided arrays, and bindings to OpenBLAS / LAPACK for near-speed-of-light operations.</p></li>
-<li><p>CuPy: Similar to NumPy, but extends its scope to fast GPU implementations of matrix operations, a drop-in numpy/scipy API, and distributed arrays.</p></li>
+<li><p>CuPy: Similar to NumPy, but extends its scope to fast GPU implementations of matrix operations, a drop-in NumPy/scipy API, and distributed arrays.</p></li>
 <li><p>PyTorch: Currently the de facto deep learning library. PyTorch includes features like different array layouts (dense, sparse, jagged), accelerator backends (cpu, cuda, rocm, xpu, tpu, etc.), automatic differentiation, deep learning features (modules, operations, optimizers, data loaders, etc.), and JIT compilation.</p></li>
-<li><p>tinygrad: Also a simple, python-based zero-dependency deep learning library with features similar to PyTorch/JAX, but with fully lazy tensors and JIT compilation all the way down.</p></li>
-<li><p>JAX: Another deep learning / scientific computing library similar to pytorch but enforces functional purity and other restrictions to ensure JIT compilation can be done effectively through MLIR.</p></li>
+<li><p>tinygrad: Also a simple, Python-based zero-dependency deep learning library with features similar to PyTorch/JAX, but with fully lazy tensors and JIT compilation all the way down.</p></li>
+<li><p>JAX: Another deep learning / scientific computing library similar to PyTorch but enforces functional purity and other restrictions to ensure JIT compilation can be done effectively through MLIR. Also has cool features like higher order gradients,
+JVP, vmap, pmap, etc.</p></li>
 </ol>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="purpose">
@@ -897,12 +898,12 @@ implement more features.</p>
 which fully implemented automatic differentiation. However, it used NumPy/CuPy as the underlying array libraries to
 perform the operations. I wanted to do it completely from scratch<a class="footnote-reference brackets" href="#deps" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 <p>I created this library to ensure I fully understand CUDA and deep learning performance optimizations
-and libraries from the ground up. This includes the strided dense array construct, python C bindings,
+and libraries from the ground up. This includes the strided dense array construct, Python C bindings,
 dynamic dispatch (a simplified version of PyTorch’s dispatch table), CUDA, and fast CUDA kernels. To make sure that I
 actually learn, AI usage will be limited to only the unit tests and other boring tasks (like fighting pyrefly).</p>
-<p>I am not trying to beat pytorch at performance or features (impossible) and I am not trying to beat tinygrad
-at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may be a little janky / hacky,
-but it will be mine.</p>
+<p>I am not trying to beat PyTorch at performance or features (impossible) and I am not trying to beat tinygrad
+at simplicity. I simply want my own testbed to write and experiment with MLOps end-to-end. It may not be as polished as
+production libraries, but its purpose is to help me learn from the ground up.</p>
 <p>Also, I personally hate how every framework nowadays takes several seconds/minutes to warmup on every run because of JIT
 compilation / autotuning. This is why I wanted a simple framework where you simply define the kernels you want, compile them
 once and cache them, and just go. Even the 5 seconds it takes to import torch has gotten infuriating. There’s also the 5GB+ of
@@ -912,7 +913,7 @@ packages that need to be installed to use any of these libraries which is far fr
 <h1>Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">#</a></h1>
 <ul class="simple">
 <li><p>Add important array operations. Currently, element-wise is completed and reduction is a work in progress. I will add
-matmuls, convolutions (probably), flash attention, and maybe other attention functions (linear, sparse, etc.)</p></li>
+matmuls, convolutions, flash attention, and maybe other attention functions (linear, sparse, etc.)</p></li>
 <li><p>Clean up codebase (unify <code class="docutils literal notranslate"><span class="pre">Buffer</span></code>/<code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, simpler dispatch, etc.)</p></li>
 <li><p>Add benchmark sweep vs. PyTorch Cuda on Ampere (maybe hopper and/or blackwell down the line)</p></li>
 <li><p>Add automatic differentiation (see <a class="reference external" href="https://vikramrangarajan.github.io/SimpleTensor/">SimpleTensor</a>) using a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> class
@@ -924,7 +925,7 @@ triton + torch.compile from scratch would likely be a much larger project than t
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="quick-overview">
 <h1>Quick Overview<a class="headerlink" href="#quick-overview" title="Link to this heading">#</a></h1>
-<pre data-zoom-id="id-6742cf5e-6ecc-44dd-88ca-ce666bb18ed4" class="mermaid">
+<pre data-zoom-id="id-881caca0-84ba-4bd5-970d-4fa488306c2f" class="mermaid">
         ---
 title: SimpleNDArray Architecture
 ---
@@ -965,16 +966,17 @@ arange_int(out, offset, stride, n)&quot;]
   PK --&gt; AST --&gt; RT --&gt; CM
   D --&gt; CM
   CM --&gt; K
-    </pre><p>SimpleNDArray is meant to be similar to pytorch in terms of API and usage. You register your custom kernels or just
-use the ones provided. You can then use the array class for all of your n-dimensional array needs, and you will then
-get automatic kernel dispatching to construct your output. SimpleNDArray will provide all of the standard functions
-like element-wise (+, -, *, /, log, exp, relu, etc.), reductions (sum, mean, max, min), products (matmul, conv, etc.),
-flash attention, and more.</p>
+    </pre><p>SimpleNDArray provides a PyTorch-like API, but is built on fully custom CUDA kernels and a custom runtime.
+You can register your custom kernels entirely in Python or just use the ones provided. Operations on these
+<code class="docutils literal notranslate"><span class="pre">Array</span></code>s will be automatically dispatched to the appropriate kernel based on the array’s device and dtype.
+SimpleNDArray will provide all of the standard functions like element-wise (+, -, *, /, log, exp, relu, etc.),
+reductions (sum, mean, max, min, etc.), products (matmul, conv, etc.), flash attention, and more. All without
+any external dependencies.</p>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="getting-started-the-transpiler-and-runtime">
 <h1>Getting Started: The Transpiler and Runtime<a class="headerlink" href="#getting-started-the-transpiler-and-runtime" title="Link to this heading">#</a></h1>
-<p>Since we are not writing a <em>fully</em> python-only library, we will need a way to turn our python code into
-performant C++/CUDA code. For this, I have made a Python-&gt;C transpiler using the Python typing system.</p>
+<p>Since we are not writing a <em>fully</em> Python-only library, we will need a way to turn our Python code into
+performant C++/CUDA code. For this, I have made a Python-&gt;C/CUDA transpiler using the Python typing system.</p>
 <p>Here is an example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">array</span><span class="w"> </span><span class="kn">import</span> <span class="n">array</span>
 
@@ -1004,13 +1006,13 @@ performant C++/CUDA code. For this, I have made a Python-&gt;C transpiler using 
 15
 </pre></div>
 </div>
-<p>This python script did the following things:</p>
+<p>This Python script did the following things:</p>
 <ul class="simple">
-<li><p>JIT transpiled a simple vector_sum function into C</p></li>
-<li><p>Generated python bindings automatically</p></li>
+<li><p>Transpiled a simple vector_sum function into C at runtime</p></li>
+<li><p>Generated Python bindings automatically</p></li>
 <li><p>Compiled the Python C extension into a <code class="docutils literal notranslate"><span class="pre">.so</span></code> file</p></li>
 <li><p>Imported this extension at runtime</p></li>
-<li><p>Ran the vector sum on a python array (the built-in python array module, if you are not aware) and compared it to the ground truth</p></li>
+<li><p>Ran the vector sum on a Python array (the built-in Python array module, if you are not aware) and compared it to the ground truth</p></li>
 </ul>
 <p>Let’s take a look at the generated C code:</p>
 <details>
@@ -1058,19 +1060,19 @@ performant C++/CUDA code. For this, I have made a Python-&gt;C transpiler using 
 </pre></div>
 </div>
 </details>
-<p>This gives us a good starting point for writing cuda kernels in python without external python DSLs like
+<p>This gives us a good starting point for writing CUDA kernels in Python without external Python DSLs like
 triton, CuTeDSL, helion, etc.</p>
-<p>This transpiler uses the python <code class="docutils literal notranslate"><span class="pre">ast</span></code> module to:</p>
+<p>This transpiler uses the Python <code class="docutils literal notranslate"><span class="pre">ast</span></code> module to:</p>
 <ul class="simple">
 <li><p>Gather type hints for every variable and translate them into a C type</p></li>
-<li><p>Turn python constructs (loops, conditionals, operations, etc.) into their C equivalent</p></li>
-<li><p>Automatically generate python bindings to these C functions (set <code class="docutils literal notranslate"><span class="pre">pybind=True</span></code>)</p></li>
+<li><p>Turn Python constructs (loops, conditionals, operations, etc.) into their C equivalent</p></li>
+<li><p>Automatically generate Python bindings to these C functions (set <code class="docutils literal notranslate"><span class="pre">pybind=True</span></code>)</p></li>
 </ul>
-<p>Note that I chose the python <code class="docutils literal notranslate"><span class="pre">list</span></code> type to translate directly to a <code class="docutils literal notranslate"><span class="pre">pointer</span></code> type because of the same indexing semantics. The <code class="docutils literal notranslate"><span class="pre">arr.buffer_info()[0]</span></code> gives the memory address of the start of the array as a python <code class="docutils literal notranslate"><span class="pre">int</span></code>, which converted to an <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></code> (u64) in the python binding, and is finally passed into the <code class="docutils literal notranslate"><span class="pre">vector_sum</span></code> binding as an <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">*</span></code>.</p>
+<p>Note that I chose the Python <code class="docutils literal notranslate"><span class="pre">list</span></code> type to translate directly to a <code class="docutils literal notranslate"><span class="pre">pointer</span></code> type because of the same indexing semantics. The <code class="docutils literal notranslate"><span class="pre">arr.buffer_info()[0]</span></code> gives the memory address of the start of the array as a Python <code class="docutils literal notranslate"><span class="pre">int</span></code>, which converted to an <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></code> (u64) in the Python binding, and is finally passed into the <code class="docutils literal notranslate"><span class="pre">vector_sum</span></code> binding as an <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">*</span></code>.</p>
 <p>However, this is not enough to write performant CUDA kernels. For example, how do we declare shared memory or
 static sized arrays? What about function attributes like <code class="docutils literal notranslate"><span class="pre">static</span></code>, <code class="docutils literal notranslate"><span class="pre">__global__</span></code>, <code class="docutils literal notranslate"><span class="pre">__device__</span></code>, etc.?</p>
-<p>The python type system does not support this. For function attributes, the closest thing we have is <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code>, and we cannot add our own keywords. So for function attributes, we define them in <code class="docutils literal notranslate"><span class="pre">mod.compile_fn(...,</span> <span class="pre">c_attrs=[...])</span></code>. For variable attributes and arrays, we can use <code class="docutils literal notranslate"><span class="pre">typing.Annotated</span></code>. The transpiler can find these special annotations and replace them with the correct C syntax.</p>
-<p>Finally, I needed generic support to prevent rewriting the same kernel for every single dtype. I used python generics for this purpose. Python generics act as a string replacement as opposed to true generics. Here is a full example of all of these features being used in my cuda element wise kernels.</p>
+<p>The Python type system does not support this. For function attributes, the closest thing we have is <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code>, and we cannot add our own keywords. So for function attributes, we define them in <code class="docutils literal notranslate"><span class="pre">mod.compile_fn(...,</span> <span class="pre">c_attrs=[...])</span></code>. For variable attributes and arrays, we can use <code class="docutils literal notranslate"><span class="pre">typing.Annotated</span></code>. The transpiler can find these special annotations and replace them with the correct C syntax.</p>
+<p>Finally, I needed generic support to prevent rewriting the same kernel for every single dtype. I used Python generics for this purpose. Python generics act as a string replacement as opposed to true generics. Here is a full example of all of these features being used in my CUDA element wise kernels.</p>
 <details>
 <summary>Show Python Code</summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Callable</span>
@@ -5695,27 +5697,27 @@ static sized arrays? What about function attributes like <code class="docutils l
 </details>
 <p>Some notes on this:</p>
 <ul class="simple">
-<li><p>Some of this python code, such as the <code class="docutils literal notranslate"><span class="pre">_math_id</span></code> function and all of the functions that are set to it, are purely for type hinting.
+<li><p>Some of this Python code, such as the <code class="docutils literal notranslate"><span class="pre">_math_id</span></code> function and all of the functions that are set to it, are purely for type hinting.
 The transpiler can take in a function that would otherwise cause a <code class="docutils literal notranslate"><span class="pre">NameError:</span> <span class="pre">name</span> <span class="pre">'variable_name'</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">defined</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SpecItem</span></code> is used to specify what the generic type should string-substitute as, and also specifies the final C function name.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">__device__</span></code> and <code class="docutils literal notranslate"><span class="pre">__global__</span></code> functions have <code class="docutils literal notranslate"><span class="pre">pybind=False</span></code>, only the ones that can be called from host-side python have <code class="docutils literal notranslate"><span class="pre">pybind=True</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">__device__</span></code> and <code class="docutils literal notranslate"><span class="pre">__global__</span></code> functions have <code class="docutils literal notranslate"><span class="pre">pybind=False</span></code>, only the ones that can be called from host-side Python have <code class="docutils literal notranslate"><span class="pre">pybind=True</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">._element_wise_cuda_stubs</span> <span class="pre">import</span> <span class="pre">_ElementWiseModuleClass</span></code> is actually an automatically generated type stub for <code class="docutils literal notranslate"><span class="pre">PythonModule</span></code>.
 It is equivalent to <code class="docutils literal notranslate"><span class="pre">PythonModule</span></code> but has runtime generated type stubs for each of the functions with <code class="docutils literal notranslate"><span class="pre">pybind=True</span></code>. I may remove this in the
 future if I don’t use it often.</p></li>
-<li><p>I have not added define macros yet, but it seems <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is smart enough to inline these element-wise operations since these kernels get
-quite close to speed of light performance. I will investigate this later.</p></li>
+<li><p>I have not added define macros yet, but it seems <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is smart enough to inline these element-wise operations since these
+kernels get quite close to speed of light memory bandwidth. I will investigate this in the next blogpost.</p></li>
 </ul>
 <p>This currently suffices for our low-level bridge. When I get to mma PTX instructions, I will likely need to add some more features to support asm volatile, but that is a bit down the line. Also, modules are hashed and cached when compiled into
 <code class="docutils literal notranslate"><span class="pre">~/.cache/simplendarray</span></code> to prevent unnecessary recompilation.</p>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="the-buffer">
 <h1>The Buffer<a class="headerlink" href="#the-buffer" title="Link to this heading">#</a></h1>
-<p>The Buffer class(es) are necessary to declare that we have a chunk of memory for computation. SimpleNDArray has two
+<p>The Buffer classes are necessary to declare that we have a chunk of memory for computation. SimpleNDArray has two
 buffer classes: <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> and <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>. Both have the following methods/fields:</p>
 <ul class="simple">
 <li><p>Constructor</p></li>
 <li><p>classmethod <code class="docutils literal notranslate"><span class="pre">empty</span></code> (<code class="docutils literal notranslate"><span class="pre">Buffer</span></code> currently fills it with all zeros)</p></li>
-<li><p>classmethod <code class="docutils literal notranslate"><span class="pre">from_iterable</span></code>, turns a python iterable into a contiguous C buffer</p></li>
+<li><p>classmethod <code class="docutils literal notranslate"><span class="pre">from_iterable</span></code>, turns a Python iterable into a contiguous C buffer</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: always a CPU array. If called on <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, a d2h copy is done.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> (int): Memory address of buffer</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">typecode</span></code> (str): The <code class="docutils literal notranslate"><span class="pre">array</span></code> module typecode to specify the dtype of the buffer</p></li>
@@ -5723,26 +5725,29 @@ buffer classes: <code class="docutils literal notranslate"><span class="pre">Buf
 </ul>
 <p>Currently, the constructors do not agree for <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> and <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code> because of the following:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Buffer</span></code>’s constructor takes in a python <code class="docutils literal notranslate"><span class="pre">array</span></code> and stores it as the <code class="docutils literal notranslate"><span class="pre">data</span></code> field</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Buffer</span></code>’s constructor takes in a Python <code class="docutils literal notranslate"><span class="pre">array</span></code> and stores it as the <code class="docutils literal notranslate"><span class="pre">data</span></code> field</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>’s constructor takes in a <code class="docutils literal notranslate"><span class="pre">size</span></code> and <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and calls <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>, so <code class="docutils literal notranslate"><span class="pre">BufferCuda.empty</span></code> just calls the constructor</p></li>
-<li><p>The python array module does not provide the ability to create an empty array so the constructor and empty methods are different</p></li>
+<li><p>The Python array module does not provide the ability to create an empty array so the constructor and empty methods are different</p></li>
 </ul>
 <p>In the future, I hope to clean these 2 classes up. Ideally, I remove the dependency on the array module and the use of typecodes,
 as it has cluttered my codebase and will be difficult to use custom types (e.g. bfloat16, float16) which don’t have associated
-python typecodes.</p>
-<p>For <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> is called inside the <code class="docutils literal notranslate"><span class="pre">__del__</span></code> method for some basic automatic memory management. I will also have to fix this to remove the possibility of memory leaks or double frees.</p>
-<p>I will note that to call functions like <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>, and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>, the runtime from above was used to bind these to python! No cuda files were (directly) written for this.</p>
+Python typecodes.</p>
+<p>To deal with memory management, an invariant I enforced is that for every memory buffer, there will be exactly 1
+<code class="docutils literal notranslate"><span class="pre">Buffer/BufferCuda</span></code> class. This buffer class will have sole ownership of the buffer and memory views will use the
+same buffer object.
+For <code class="docutils literal notranslate"><span class="pre">BufferCuda</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> is called inside the <code class="docutils literal notranslate"><span class="pre">__del__</span></code> method for some basic automatic memory management. I will also have to fix this to remove the possibility of memory leaks or double frees.</p>
+<p>I will note that to call functions like <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>, and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>, the runtime from above was used to bind these to Python! No CUDA files were (directly) written for this.</p>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="the-array">
 <h1>The Array<a class="headerlink" href="#the-array" title="Link to this heading">#</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">Array</span></code> class will be a relatively simple wrapper around the <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> classes. It will contain:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Array</span></code> class will be a relatively simple wrapper around the <code class="docutils literal notranslate"><span class="pre">Buffer</span></code> classes with extra metadata. It will contain:</p>
 <ul class="simple">
 <li><p>A <code class="docutils literal notranslate"><span class="pre">data</span></code> buffer</p></li>
 <li><p>A <code class="docutils literal notranslate"><span class="pre">shape</span></code>, which will be a tuple of ints</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">strides</span></code>, which will be a tuple of ints of the same length as <code class="docutils literal notranslate"><span class="pre">shape</span></code></p></li>
 <li><p>An offset, indicating where the first element of the array will be in the buffer</p></li>
 </ul>
-<p>We can derive other numpy/torch array properties from these:</p>
+<p>We can derive other NumPy/PyTorch array properties from these:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ndim</span></code>=<code class="docutils literal notranslate"><span class="pre">len(shape)</span></code>=<code class="docutils literal notranslate"><span class="pre">len(strides)</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">numel()</span></code>/<code class="docutils literal notranslate"><span class="pre">size</span></code> = <code class="docutils literal notranslate"><span class="pre">product(shape)</span></code></p></li>
@@ -5797,13 +5802,13 @@ NumPy and PyTorch (and SimpleNDArray) can perform these memory views in a zero-c
 </div>
 <p>As you can see, both a and b’s data buffers share the same memory address because b is a zero-copy memory view of a.
 b just has double the stride that a has, allowing it to jump by 2 elements for each index increase.</p>
-<p>I had ChatGPT make a good ascii art to show this. I added the bytes because numpy’s strides are multiplied by the <code class="docutils literal notranslate"><span class="pre">itemsize</span></code>
+<p>I had ChatGPT make a good ascii art to show this. I added the bytes because NumPy’s strides are multiplied by the <code class="docutils literal notranslate"><span class="pre">itemsize</span></code>
 as the strides are in bytes, not elements.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>                 a[0]              a[1]              a[2]              a[3]
                   |&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|
                   v                 v                 v                 v
-Buffer:  +-----------------+-----------------+-----------------+-----------------+
-         |        0        |        1        |        2        |        3        |
+         +-----------------+-----------------+-----------------+-----------------+
+Buffer:  |        0        |        1        |        2        |        3        |
          +-----------------+-----------------+-----------------+-----------------+
                   ^                                   ^
                   |&lt;----------- 16 bytes ------------&gt;|
@@ -5837,15 +5842,17 @@ This means we can merge the offsets for all dimensions into a single offset.</p>
 <p>So this is why I chose to use strides and offset.</p>
 <p>Thanks to strides and offsets, array indexing <a class="footnote-reference brackets" href="#nparridx" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> is relatively easy (excluding advanced indexing). My
 implementation currently requires the same number of indices as dimensions, doesn’t do broadcasting, and doesn’t squeeze
-integer index dimensions, but I  will make it match with numpy’s behavior later (probably).
+integer index dimensions, but I  will make it match with NumPy’s behavior.
 It currently has support for ints and slices. For each dimension:</p>
 <ul class="simple">
-<li><p>If the index is an int <code class="docutils literal notranslate"><span class="pre">i</span></code>, the new shape at this dim will be 1 (unlike numpy/torch which squeeze the dimension).
+<li><p>If the index is an int <code class="docutils literal notranslate"><span class="pre">i</span></code>, the new shape at this dim will be 1 (unlike NumPy/torch which squeeze the dimension).
 The new stride doesn’t matter (set to 0). The new offset will have <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">*</span> <span class="pre">stride</span></code> added on.</p></li>
 <li><p>If it is a slice <code class="docutils literal notranslate"><span class="pre">(stop,</span> <span class="pre">start,</span> <span class="pre">step)</span></code>, then the new shape for this dim will <code class="docutils literal notranslate"><span class="pre">max(0,</span> <span class="pre">ceildiv(stop</span> <span class="pre">-</span> <span class="pre">start,</span> <span class="pre">step))</span></code>. The new
 stride will be <code class="docutils literal notranslate"><span class="pre">stride</span> <span class="pre">*</span> <span class="pre">step</span></code> where <code class="docutils literal notranslate"><span class="pre">stride</span></code> is the current stride. Finally, the offset will have <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">*</span> <span class="pre">stride</span></code> added on.</p></li>
 </ul>
 <p>With this, we can implement <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>:</p>
+<details>
+<summary>Show __getitem__ code</summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">(</span><span class="n">items</span><span class="p">,)</span>
@@ -5874,13 +5881,16 @@ stride will be <code class="docutils literal notranslate"><span class="pre">stri
     <span class="k">return</span> <span class="n">Array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_shape</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_strides</span><span class="p">),</span> <span class="n">new_offset</span><span class="p">)</span>
 </pre></div>
 </div>
+</details>
 </section>
 <section id="to-and-from-python-iterables">
 <h2>To and From Python Iterables<a class="headerlink" href="#to-and-from-python-iterables" title="Link to this heading">#</a></h2>
 <p>In NumPy and PyTorch, we can say something like <code class="docutils literal notranslate"><span class="pre">torch.tensor([[1,</span> <span class="pre">2],</span> <span class="pre">[3,</span> <span class="pre">4]])</span></code> and it will give us our (2, 2) array
-with strides (2, 1). To implement this, I flatten this nested python <code class="docutils literal notranslate"><span class="pre">Iterable</span></code> (in this case a list) while also getting
+with strides (2, 1). To implement this, I flatten this nested Python <code class="docutils literal notranslate"><span class="pre">Iterable</span></code> (in this case a list) while also getting
 the shape. We also want to ensure this iterable is not jagged (for example, [[1, 2, 3], [4, 5]] is invalid). The code
 for this is as follows:</p>
+<details>
+<summary>Show C code</summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span> <span class="n">Scalar</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span>
 <span class="nb">type</span> <span class="n">NestedIterable</span> <span class="o">=</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Scalar</span><span class="p">]</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">NestedIterable</span><span class="p">]</span>
 
@@ -5918,7 +5928,8 @@ for this is as follows:</p>
     <span class="k">return</span> <span class="n">flat</span><span class="p">,</span> <span class="n">shape</span>
 </pre></div>
 </div>
-<p>We can then pass this flat list into a python <code class="docutils literal notranslate"><span class="pre">array</span></code>, and we now have our shape. But what about our stride?</p>
+</details>
+<p>We can then pass this flat list into a Python <code class="docutils literal notranslate"><span class="pre">array</span></code>, and we now have our shape. But what about our stride?</p>
 <p>For contiguous arrays, the stride will always be a cumulative product of the shape. For example, a contiguous array
 of shape (3, 4, 5, 6) will have strides (4*5*6, 5*6, 6, 1). This is the reversed exclusive cumulative product of
 the reversed shape:</p>
@@ -5930,8 +5941,8 @@ the reversed shape:</p>
     <span class="k">return</span> <span class="n">strides</span>
 </pre></div>
 </div>
-<p>With this, and setting <code class="docutils literal notranslate"><span class="pre">offset=0</span></code>, we can now convert a python iterable to an N-Dimensional Array! But how do we get back
-to a python object, or print its contents? We can try converting the data buffer to python, but that would be out of order
+<p>With this, and setting <code class="docutils literal notranslate"><span class="pre">offset=0</span></code>, we can now convert a Python iterable to an N-Dimensional Array! But how do we get back
+to a Python object, or print its contents? We can try converting the data buffer to Python, but that would be out of order
 and the wrong shape. We instead use a simple recursive algorithm using slicing:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NestedIterable</span><span class="p">:</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -5966,7 +5977,7 @@ where a copy is necessary:</p>
 <p>We are trying to represent [0, 2, 1, 3] in the same 1d flat buffer as [0, 1, 2, 3] with a single stride which is
 clearly not possible (we jump 2, then -1, then 2). Therefore, we copy [0, 2, 1, 3] into a newly allocated buffer and return that.
 But how can we determine when we can and can’t do a zero-copy reshape?</p>
-<p>The way numpy determines how can be found in their source code<a class="footnote-reference brackets" href="#npyreshape" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<p>The way NumPy determines how can be found in their source code<a class="footnote-reference brackets" href="#npyreshape" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
 <p>First, the squeeze out any dimensions of length 1. They have no effect on contiguity and they need special rules.</p>
 <p>Next, we must observe that we can partition both the input shape and output shape into subdimensions
 that iterate together. To explain this, I will use a few examples of (old shape, new shape) pairs.</p>
@@ -5997,12 +6008,14 @@ to iterating over the output group. We just to:</p>
 <li><p>Find these groups sequentially going from left to right on both input and output shapes</p></li>
 <li><p>Check if these groups can be iterated contiguously of each other</p></li>
 </ul>
-<p>Here is the function in SimpleNDArray, transpiled pretty much line for line from numpy:</p>
+<p>Here is the function in SimpleNDArray, transpiled pretty much line for line from NumPy:</p>
+<details>
+<summary>Show Python code</summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">reshape_strides</span><span class="p">(</span>
     <span class="n">old_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">new_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">old_strides</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;If the reshape can be done with a zero-copy memory view, return the new strides.</span>
-<span class="sd">    Otherwise, return None. Based on numpy&#39;s _attempt_nocopy_reshape in _core/src/multiarray/shape.c&quot;&quot;&quot;</span>
+<span class="sd">    Otherwise, return None. Based on NumPy&#39;s _attempt_nocopy_reshape in _core/src/multiarray/shape.c&quot;&quot;&quot;</span>
     <span class="c1"># Get rid of the length 1 dimensions</span>
     <span class="n">squeezed</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">old_shape</span><span class="p">,</span> <span class="n">old_strides</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">old_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">squeezed</span><span class="p">)</span>
@@ -6063,10 +6076,13 @@ to iterating over the output group. We just to:</p>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_strides</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Good, now we know when we can do a zero-copy memory view and when we need to do a copy. But how do we do a copy?</p>
+</details>
+<p>Now we know when we can do a zero-copy memory view and when we need to do a copy. But how do we do a copy?</p>
 <p>This requires a custom reshape copy element-wise kernel. How it works is we store an n-dimensional input
 index and an n-dimensional output index. Over a total of <code class="docutils literal notranslate"><span class="pre">n</span></code> iterations where <code class="docutils literal notranslate"><span class="pre">n</span></code> is the number of elements,
 we increment both the input and output index once per iteration. Here is the CPU kernel:</p>
+<details>
+<summary>Show CPU Kernel code</summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@element_wise_module</span><span class="o">.</span><span class="n">compile_fn</span><span class="p">(</span>
     <span class="n">types</span><span class="o">=</span><span class="p">[</span><span class="n">SpecItem</span><span class="p">({</span><span class="s2">&quot;T&quot;</span><span class="p">:</span> <span class="n">ctype</span><span class="p">(</span><span class="n">dt</span><span class="p">)},</span> <span class="sa">f</span><span class="s2">&quot;reshape_copy_</span><span class="si">{</span><span class="n">cname</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">all_dtypes</span><span class="p">],</span> <span class="n">pybind</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
@@ -6118,6 +6134,7 @@ we increment both the input and output index once per iteration. Here is the CPU
                     <span class="n">out_idx</span> <span class="o">+=</span> <span class="n">out_strides</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
+</details>
 <p>For example, if we were reshaping a (4, 2) array to a (2, 2, 2) array, this would be doing:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
@@ -6132,7 +6149,7 @@ we increment both the input and output index once per iteration. Here is the CPU
 <p>Except we are not doing ND indexing, we are calculating the pointer offsets using the input and output
 strides using <code class="docutils literal notranslate"><span class="pre">inp_idx</span></code> and <code class="docutils literal notranslate"><span class="pre">out_idx</span></code>.</p>
 <p>Sidenote: Even though this is an element-wise kernel, the CUDA kernel for this operation does not achieve
-anywhere close to speed of light performance like the other element-wise kernels because of the overhead
+anywhere close to speed of light memory bandwidth like the other element-wise kernels because of the overhead
 of the n-dimensional indexing and pointer offset calculations. I will attempt to improve this in the future.</p>
 </section>
 <section id="kernels-and-dispatch">
@@ -6140,18 +6157,31 @@ of the n-dimensional indexing and pointer offset calculations. I will attempt to
 <p>The runtime has given me access to generics, but now we need to dynamically dispatch the correct <code class="docutils literal notranslate"><span class="pre">(kernel,</span> <span class="pre">dtype,</span> <span class="pre">device)</span></code>
 tuple for any arbitrary array.</p>
 <p>PyTorch, as a reference, has an extremely complex dispatch engine which covers their <code class="docutils literal notranslate"><span class="pre">(kernel,</span> <span class="pre">dtype,</span> <span class="pre">device,</span> <span class="pre">layout,</span> <span class="pre">backend)</span></code>,
-autograd, autocast, JIT compilation, __torch_function__, __torch_dispatch__, fallback, and more. A great blog from Edward Yang in 2020
-talks about the pytorch dispatch engine in detail (but is almost certainly out of date now)<a class="footnote-reference brackets" href="#dispatchblog1" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+autograd, autocast, JIT compilation, __torch_function__, __torch_dispatch__, fallback, and more. A great blogpost from
+Edward Yang in 2020 talks about the PyTorch dispatch engine in detail (but is almost certainly out of date now)<a class="footnote-reference brackets" href="#dispatchblog1" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
 <p>I keep it simple. I group similar operations together in <code class="docutils literal notranslate"><span class="pre">PythonModule</span></code>s (element-wise, reduction, mm, conv, etc.). I have one
 <code class="docutils literal notranslate"><span class="pre">PythonModule</span></code> per device type (cpu, cuda), and each <code class="docutils literal notranslate"><span class="pre">PythonModule</span></code> function has type generic functions for all covered dtypes.
 I then use a dispatch dictionary to get the correct function. It’s simple enough, and it works for my use case.</p>
 </section>
 </section>
+<section class="tex2jax_ignore mathjax_ignore" id="conclusion">
+<h1>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h1>
+<p>This is all for part 1 of this series. So far, we have covered:</p>
+<ul class="simple">
+<li><p>The Python-&gt;C/CUDA transpiler</p></li>
+<li><p>The runtime which allows for cached compilation</p></li>
+<li><p>Buffers and memory management</p></li>
+<li><p>Strided arrays and their associated operations</p></li>
+<li><p>Dynamic kernel dispatch</p></li>
+</ul>
+<p>In part 2, I will cover different kernels such as element-wise, reductions,
+and matmuls. I will also benchmark my kernels against PyTorch and the theoretical roofline on my testing hardware.</p>
+</section>
 <hr class="footnotes docutils" />
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="deps" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>SimpleNDArray requires compilers (nvcc/gcc), the nvidia toolkit, and drivers to be installed. There are also test dependencies, but those do not count.</p>
+<p>SimpleNDArray requires compilers (nvcc/gcc), the NVIDIA CUDA Toolkit, and drivers to be installed. There are also test dependencies, but those do not count.</p>
 </aside>
 <aside class="footnote brackets" id="nparridx" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
@@ -6214,6 +6244,7 @@ I then use a dispatch dictionary to get the correct function. It’s simple enou
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernels-and-dispatch">Kernels and Dispatch</a></li>
 </ul>
 </li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion</a></li>
 </ul>
 
   </nav></div>
