@@ -49,6 +49,363 @@
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (true) {
+                                        addZoomToSvgs(d3.selectAll(".mermaid[data-zoom-id=id-6742cf5e-6ecc-44dd-88ca-ce666bb18ed4]").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (true) {
+        const mermaids_to_add_zoom = 1 === -1 ? mermaids_active.length : 1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll(".mermaid[data-zoom-id=id-6742cf5e-6ecc-44dd-88ca-ce666bb18ed4]").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (true) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'blog/sndap1';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -518,6 +875,11 @@
                    <section class="tex2jax_ignore mathjax_ignore" id="simplendarray-part-1-a-simple-cuda-accelerated-array-library">
 <h1>SimpleNDArray Part 1 - A Simple CUDA-Accelerated Array Library<a class="headerlink" href="#simplendarray-part-1-a-simple-cuda-accelerated-array-library" title="Link to this heading">#</a></h1>
 <p>SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>SimpleNDArray is in active early development. There will be bugs, API changes, and performance improvements as I
+implement more features.</p>
+</div>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="related-projects">
 <h1>Related Projects<a class="headerlink" href="#related-projects" title="Link to this heading">#</a></h1>
@@ -543,7 +905,8 @@ at simplicity. I simply want my own testbed to write and experiment with MLOps e
 but it will be mine.</p>
 <p>Also, I personally hate how every framework nowadays takes several seconds/minutes to warmup on every run because of JIT
 compilation / autotuning. This is why I wanted a simple framework where you simply define the kernels you want, compile them
-once and cache them, and just go. Even the 5 seconds it takes to import torch has gotten infuriating.</p>
+once and cache them, and just go. Even the 5 seconds it takes to import torch has gotten infuriating. There’s also the 5GB+ of
+packages that need to be installed to use any of these libraries which is far from ideal.</p>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="roadmap">
 <h1>Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">#</a></h1>
@@ -554,7 +917,59 @@ matmuls, convolutions (probably), flash attention, and maybe other attention fun
 <li><p>Add benchmark sweep vs. PyTorch Cuda on Ampere (maybe hopper and/or blackwell down the line)</p></li>
 <li><p>Add automatic differentiation (see <a class="reference external" href="https://vikramrangarajan.github.io/SimpleTensor/">SimpleTensor</a>) using a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> class
 which wraps the <code class="docutils literal notranslate"><span class="pre">Array</span></code> class</p></li>
+<li><p>Add distributed support (MPI collective ops via NCCL / custom implementations).</p></li>
+<li><p>I will likely not be exploring JIT compilation / kernel generation / autotuning too much, but I am not sure yet. Making my own
+triton + torch.compile from scratch would likely be a much larger project than this one.</p></li>
 </ul>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="quick-overview">
+<h1>Quick Overview<a class="headerlink" href="#quick-overview" title="Link to this heading">#</a></h1>
+<pre data-zoom-id="id-6742cf5e-6ecc-44dd-88ca-ce666bb18ed4" class="mermaid">
+        ---
+title: SimpleNDArray Architecture
+---
+graph TB
+  User([&quot;User API&quot;])
+
+  subgraph ArrayLayer[&quot;Array Layer&quot;]
+    direction LR
+    FC[&quot;Array.relu() .\_\_add\_\_() .arange() .reshape()&quot;]
+    A[&quot;Array
+data: Buffer | BufferCuda
+shape, stride, offset&quot;]
+  end
+
+  subgraph Storage[&quot;Storage&quot;]
+    B[&quot;Buffer (CPU) - array.array&quot;]
+    BC[&quot;BufferCuda (GPU) - cudaMalloc&quot;]
+  end
+
+  PK[&quot;Python Modules and Kernels
+&#64;module.compile_fn(...) 
+def my_kernel(...)&quot;]
+  AST[&quot;AST Parse + Type Substitution&quot;]
+  RT[&quot;Runtime: .c/.cu generation
+gcc/nvcc -&gt; .so&quot;]
+  CM[&quot;Compiled Modules&quot;]
+  D[&quot;(DType, Device, Kernel) Dispatch&quot;]
+  K[&quot;Kernel Call
+arange_int(out, offset, stride, n)&quot;]
+
+  User --&gt; FC
+  User --&gt; PK
+  FC --&gt; A
+  A --&gt; Storage
+  Storage --&gt; D
+  A --&gt; D
+
+  PK --&gt; AST --&gt; RT --&gt; CM
+  D --&gt; CM
+  CM --&gt; K
+    </pre><p>SimpleNDArray is meant to be similar to pytorch in terms of API and usage. You register your custom kernels or just
+use the ones provided. You can then use the array class for all of your n-dimensional array needs, and you will then
+get automatic kernel dispatching to construct your output. SimpleNDArray will provide all of the standard functions
+like element-wise (+, -, *, /, log, exp, relu, etc.), reductions (sum, mean, max, min), products (matmul, conv, etc.),
+flash attention, and more.</p>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="getting-started-the-transpiler-and-runtime">
 <h1>Getting Started: The Transpiler and Runtime<a class="headerlink" href="#getting-started-the-transpiler-and-runtime" title="Link to this heading">#</a></h1>
@@ -5384,15 +5799,15 @@ NumPy and PyTorch (and SimpleNDArray) can perform these memory views in a zero-c
 b just has double the stride that a has, allowing it to jump by 2 elements for each index increase.</p>
 <p>I had ChatGPT make a good ascii art to show this. I added the bytes because numpy’s strides are multiplied by the <code class="docutils literal notranslate"><span class="pre">itemsize</span></code>
 as the strides are in bytes, not elements.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>            a[0]               a[1]              a[2]              a[3]
-              |&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|
-              v                 v                 v                 v
-Buffer:  +-------------+-----------------+-----------------+-------------+
-         |     1       |        2        |        3        |      4      |
-         +-------------+-----------------+-----------------+-------------+
-              ^                                   ^
-              |&lt;---------- 16 bytes -------------&gt;|
-            b[0]                                 b[1]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>                 a[0]              a[1]              a[2]              a[3]
+                  |&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|&lt;--- 8 bytes ---&gt;|
+                  v                 v                 v                 v
+Buffer:  +-----------------+-----------------+-----------------+-----------------+
+         |        0        |        1        |        2        |        3        |
+         +-----------------+-----------------+-----------------+-----------------+
+                  ^                                   ^
+                  |&lt;----------- 16 bytes ------------&gt;|
+                b[0]                                 b[1]
 
 a stride = 8 bytes (1 element)
 b stride = 16 bytes (2 elements)
@@ -5421,11 +5836,12 @@ This means we can merge the offsets for all dimensions into a single offset.</p>
 </div>
 <p>So this is why I chose to use strides and offset.</p>
 <p>Thanks to strides and offsets, array indexing <a class="footnote-reference brackets" href="#nparridx" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> is relatively easy (excluding advanced indexing). My
-implementation currently requires the same number of indices as dimensions and doesn’t do broadcasting, but I
-will make it match with numpy’s behavior later (probably). It currently has support for ints and slices. For each dimension:</p>
+implementation currently requires the same number of indices as dimensions, doesn’t do broadcasting, and doesn’t squeeze
+integer index dimensions, but I  will make it match with numpy’s behavior later (probably).
+It currently has support for ints and slices. For each dimension:</p>
 <ul class="simple">
-<li><p>If the index is an int <code class="docutils literal notranslate"><span class="pre">i</span></code>, the new shape at this dim will be 1. The new stride doesn’t matter (set to 0). The new offset
-will have <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">*</span> <span class="pre">stride</span></code> added on.</p></li>
+<li><p>If the index is an int <code class="docutils literal notranslate"><span class="pre">i</span></code>, the new shape at this dim will be 1 (unlike numpy/torch which squeeze the dimension).
+The new stride doesn’t matter (set to 0). The new offset will have <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">*</span> <span class="pre">stride</span></code> added on.</p></li>
 <li><p>If it is a slice <code class="docutils literal notranslate"><span class="pre">(stop,</span> <span class="pre">start,</span> <span class="pre">step)</span></code>, then the new shape for this dim will <code class="docutils literal notranslate"><span class="pre">max(0,</span> <span class="pre">ceildiv(stop</span> <span class="pre">-</span> <span class="pre">start,</span> <span class="pre">step))</span></code>. The new
 stride will be <code class="docutils literal notranslate"><span class="pre">stride</span> <span class="pre">*</span> <span class="pre">step</span></code> where <code class="docutils literal notranslate"><span class="pre">stride</span></code> is the current stride. Finally, the offset will have <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">*</span> <span class="pre">stride</span></code> added on.</p></li>
 </ul>
@@ -5715,6 +6131,20 @@ we increment both the input and output index once per iteration. Here is the CPU
 </div>
 <p>Except we are not doing ND indexing, we are calculating the pointer offsets using the input and output
 strides using <code class="docutils literal notranslate"><span class="pre">inp_idx</span></code> and <code class="docutils literal notranslate"><span class="pre">out_idx</span></code>.</p>
+<p>Sidenote: Even though this is an element-wise kernel, the CUDA kernel for this operation does not achieve
+anywhere close to speed of light performance like the other element-wise kernels because of the overhead
+of the n-dimensional indexing and pointer offset calculations. I will attempt to improve this in the future.</p>
+</section>
+<section id="kernels-and-dispatch">
+<h2>Kernels and Dispatch<a class="headerlink" href="#kernels-and-dispatch" title="Link to this heading">#</a></h2>
+<p>The runtime has given me access to generics, but now we need to dynamically dispatch the correct <code class="docutils literal notranslate"><span class="pre">(kernel,</span> <span class="pre">dtype,</span> <span class="pre">device)</span></code>
+tuple for any arbitrary array.</p>
+<p>PyTorch, as a reference, has an extremely complex dispatch engine which covers their <code class="docutils literal notranslate"><span class="pre">(kernel,</span> <span class="pre">dtype,</span> <span class="pre">device,</span> <span class="pre">layout,</span> <span class="pre">backend)</span></code>,
+autograd, autocast, JIT compilation, __torch_function__, __torch_dispatch__, fallback, and more. A great blog from Edward Yang in 2020
+talks about the pytorch dispatch engine in detail (but is almost certainly out of date now)<a class="footnote-reference brackets" href="#dispatchblog1" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<p>I keep it simple. I group similar operations together in <code class="docutils literal notranslate"><span class="pre">PythonModule</span></code>s (element-wise, reduction, mm, conv, etc.). I have one
+<code class="docutils literal notranslate"><span class="pre">PythonModule</span></code> per device type (cpu, cuda), and each <code class="docutils literal notranslate"><span class="pre">PythonModule</span></code> function has type generic functions for all covered dtypes.
+I then use a dispatch dictionary to get the correct function. It’s simple enough, and it works for my use case.</p>
 </section>
 </section>
 <hr class="footnotes docutils" />
@@ -5730,6 +6160,10 @@ strides using <code class="docutils literal notranslate"><span class="pre">inp_i
 <aside class="footnote brackets" id="npyreshape" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p>The C source can be found <a class="reference external" href="https://github.com/numpy/numpy/blob/634b4625e3b9ad55dbc9854d47ad929539c62d74/numpy/_core/src/multiarray/shape.c#L378-L471">here</a></p>
+</aside>
+<aside class="footnote brackets" id="dispatchblog1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Blog is <a class="reference external" href="https://blog.ezyang.com/2020/09/lets-talk-about-the-pytorch-dispatcher/">here</a>.</p>
 </aside>
 </aside>
 
@@ -5769,6 +6203,7 @@ strides using <code class="docutils literal notranslate"><span class="pre">inp_i
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#related-projects">Related Projects</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#purpose">Purpose</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#roadmap">Roadmap</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-overview">Quick Overview</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started-the-transpiler-and-runtime">Getting Started: The Transpiler and Runtime</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-buffer">The Buffer</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-array">The Array</a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -5776,6 +6211,7 @@ strides using <code class="docutils literal notranslate"><span class="pre">inp_i
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#strided-layout">Strided Layout</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#to-and-from-python-iterables">To and From Python Iterables</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reshaping">Reshaping</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernels-and-dispatch">Kernels and Dispatch</a></li>
 </ul>
 </li>
 </ul>
