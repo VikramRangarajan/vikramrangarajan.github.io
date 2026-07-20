@@ -8,7 +8,7 @@ language: English
 
 # SimpleNDArray Part 1 - A Simple CUDA-Accelerated Array Library
 
-SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.
+[SimpleNDArray](https://github.com/VikramRangarajan/SimpleNDArray) is a zero-dependency, CUDA-accelerated array library for Python.
 
 [^deps]: SimpleNDArray requires compilers (nvcc/gcc), the NVIDIA CUDA Toolkit, and drivers to be installed. There are also test dependencies, but those do not count.
 
