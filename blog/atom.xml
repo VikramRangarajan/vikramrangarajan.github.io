@@ -2,8 +2,24 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
   <id>https://vikramrangarajan.github.io</id>
   <title>Blog</title>
-  <updated>2026-07-20T06:42:57.714435+00:00</updated>
+  <updated>2026-07-20T07:26:04.396675+00:00</updated>
   <link href="https://vikramrangarajan.github.io"/>
   <link href="https://vikramrangarajan.github.io/blog/atom.xml" rel="self"/>
   <generator uri="https://ablog.readthedocs.io/" version="0.11.13">ABlog</generator>
+  <entry>
+    <id>https://vikramrangarajan.github.io/blog/sndap1.html</id>
+    <title>SimpleNDArray Part 1 - A Simple CUDA-Accelerated Array Library</title>
+    <updated>2026-07-20T00:00:00+00:00</updated>
+    <author>
+      <name>Vikram Rangarajan</name>
+    </author>
+    <content type="html">&lt;p class="ablog-post-excerpt"&gt;&lt;p&gt;SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.&lt;/p&gt;
+&lt;/p&gt;
+</content>
+    <link href="https://vikramrangarajan.github.io/blog/sndap1.html"/>
+    <summary>SimpleNDArray is a zero-dependency, CUDA-accelerated array library for Python.</summary>
+    <category term="CUDA" label="CUDA"/>
+    <category term="Python" label="Python"/>
+    <published>2026-07-20T00:00:00+00:00</published>
+  </entry>
 </feed>
