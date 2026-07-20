@@ -729,5 +729,8 @@ This is all for part 1 of this series. So far, we have covered:
 - Strided arrays and their associated operations
 - Dynamic kernel dispatch
 
+These lay the foundations for all the array operations we need to implement. We just define the kernels, add some
+dispatch logic, and we apply it to arrays.
+
 In part 2, I will cover different kernels such as element-wise, reductions,
 and matmuls. I will also benchmark my kernels against PyTorch and the theoretical roofline on my testing hardware.
