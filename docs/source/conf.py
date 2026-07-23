@@ -32,7 +32,7 @@ phone = f'tel:+{info["phone"]}'
 blog_path = "blog"
 blog_title = "Blog"
 blog_baseurl = "https://vikramrangarajan.github.io"
-blog_post_pattern = ["blog/*.rst", "blog/*.md"]
+blog_post_pattern = ["blog/**/*.md"]
 fontawesome_included = True
 blog_authors = {
     "Vikram Rangarajan": ("Vikram Rangarajan", "https://vikramrangarajan.github.io"),
